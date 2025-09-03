@@ -32,6 +32,7 @@ app.use(
         "http://localhost:3001",
         "https://the-myou-brand.vercel.app",
         "https://vercel.app",
+        "https://the-myou-brand-8yf512yqs-abdelrahmanshabans-projects.vercel.app",
       ];
 
       // Allow any Vercel preview domain
