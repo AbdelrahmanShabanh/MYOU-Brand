@@ -24,6 +24,7 @@ function FeaturedProducts() {
         if (!res.ok) throw new Error("Failed to fetch featured products");
         setProducts(await res.json());
       } catch (err) {
+        console.error("Fetch error:", err);
         setError((err as Error).message);
       } finally {
         setLoading(false);

@@ -27,7 +27,9 @@ app.use(
       "http://localhost:3000",
       "http://localhost:3001",
       "https://the-myou-brand.vercel.app",
+      "https://the-myou-brand-dcognewdc-abdelrahmanshabans-projects.vercel.app",
       "https://vercel.app",
+      "https://*.vercel.app",
     ],
     credentials: true,
   })
