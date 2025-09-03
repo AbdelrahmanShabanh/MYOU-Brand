@@ -259,7 +259,9 @@ export default function CheckoutPage() {
         return;
       }
 
+      console.log("Order successful! Setting showSuccess to true");
       setShowSuccess(true);
+      console.log("showSuccess state:", true);
 
       // Clear cart after successful order (for both guest and authenticated users)
       if (user && user.id) {
@@ -293,13 +295,13 @@ export default function CheckoutPage() {
           onClick={() => router.push("/")}
         >
           <div
-            className="relative p-8 mx-4 max-w-md text-center bg-white rounded-lg shadow-xl dark:bg-gray-800 animate-scaleIn"
+            className="relative p-8 mx-4 max-w-md text-center bg-white rounded-lg shadow-xl animate-scaleIn"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
             <button
               onClick={() => router.push("/")}
-              className="absolute top-4 right-4 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-300"
+              className="absolute top-4 right-4 text-gray-400 transition-colors hover:text-gray-600"
             >
               <svg
                 className="w-6 h-6"
@@ -315,9 +317,9 @@ export default function CheckoutPage() {
                 />
               </svg>
             </button>
-            <div className="flex relative justify-center items-center mx-auto mb-4 w-16 h-16 bg-green-100 rounded-full dark:bg-green-900 animate-pulse-slow">
+            <div className="flex relative justify-center items-center mx-auto mb-4 w-16 h-16 bg-green-100 rounded-full animate-pulse-slow">
               <svg
-                className="w-8 h-8 text-green-600 dark:text-green-400"
+                className="w-8 h-8 text-green-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -340,14 +342,14 @@ export default function CheckoutPage() {
                 style={{ animationDelay: "0.4s" }}
               ></div>
             </div>
-            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">
               Order Submitted Successfully!
             </h3>
-            <p className="mb-4 text-gray-600 dark:text-gray-400">
+            <p className="mb-4 text-gray-600">
               You will receive a confirmation email shortly. Thank you for
               choosing MYOU!
             </p>
-            <div className="flex justify-center items-center mb-4 space-x-2 text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex justify-center items-center mb-4 space-x-2 text-sm text-gray-500">
               <div className="w-4 h-4 rounded-full border-b-2 border-pink-600 animate-spin"></div>
               <span>Redirecting to home page...</span>
             </div>

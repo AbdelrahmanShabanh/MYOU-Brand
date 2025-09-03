@@ -61,19 +61,19 @@ const Footer = () => {
         </div>
 
         {/* Copyright Section */}
-        <div className="pt-8 mt-12 border-t border-gray-200 dark:border-gray-800">
-          <div className="flex flex-col justify-between items-center text-sm text-gray-600 md:flex-row dark:text-gray-400">
+        <div className="pt-8 mt-12 border-t border-gray-200">
+          <div className="flex flex-col justify-between items-center text-sm text-gray-600 md:flex-row">
             <div className="flex flex-wrap gap-2 justify-center items-center mb-4 md:mb-0">
               <span>© 2025 MYOU.</span>
               <div className="flex gap-2 items-center">
                 <span>Made with</span>
-                <FiHeart className="w-4 h-4 text-pink-600 dark:text-pink-500" />
+                <FiHeart className="w-4 h-4 text-pink-600" />
                 <span>by</span>
                 <motion.a
                   href="https://www.instagram.com/abd_elrahman_shaban.24?igsh=MXZrenM1aGVhY3I2dA%3D%3D&utm_source=qr"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-medium text-pink-600 hover:text-pink-700 dark:text-pink-500 dark:hover:text-pink-400"
+                  className="font-medium text-pink-600 hover:text-pink-700"
                   whileHover={{ scale: 1.05 }}
                 >
                   Abdelrahman Shaban

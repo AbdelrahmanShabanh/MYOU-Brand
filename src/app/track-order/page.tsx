@@ -36,17 +36,17 @@ export default function TrackOrderPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
+        return "bg-yellow-100 text-yellow-800";
       case "paid":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
+        return "bg-blue-100 text-blue-800";
       case "shipped":
-        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300";
+        return "bg-purple-100 text-purple-800";
       case "delivered":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+        return "bg-green-100 text-green-800";
       case "cancelled":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
+        return "bg-red-100 text-red-800";
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -107,25 +107,25 @@ export default function TrackOrderPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
+    <div className="min-h-screen bg-gray-50 py-16 sm:py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Track Your Orders
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
+          <p className="text-lg text-gray-600">
             Enter your email address to track all your orders
           </p>
         </div>
 
         {/* Search Form */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 mb-8">
+        <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
           <form onSubmit={handleTrackOrder} className="space-y-6">
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-sm font-medium text-gray-700 mb-2"
               >
                 Email Address
               </label>
@@ -135,7 +135,7 @@ export default function TrackOrderPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email address"
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                 required
               />
             </div>
@@ -166,10 +166,10 @@ export default function TrackOrderPage() {
         {orders.length > 0 && (
           <div className="space-y-6">
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
                 Found {orders.length} order{orders.length > 1 ? "s" : ""}
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-gray-600">
                 Here are all your orders with {email}
               </p>
             </div>
@@ -177,7 +177,7 @@ export default function TrackOrderPage() {
             {orders.map((order, index) => (
               <div
                 key={order._id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden"
+                className="bg-white rounded-lg shadow-lg overflow-hidden"
               >
                 {/* Order Header */}
                 <div className="bg-gradient-to-r from-pink-600 to-purple-600 px-6 py-4">
@@ -206,8 +206,8 @@ export default function TrackOrderPage() {
 
                 <div className="p-6">
                   {/* Status Description */}
-                  <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <p className="text-gray-700 dark:text-gray-300">
+                  <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                    <p className="text-gray-700">
                       {getStatusDescription(order.status)}
                     </p>
                   </div>
@@ -215,10 +215,10 @@ export default function TrackOrderPage() {
                   {/* Customer Information */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
-                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-3">
                         Customer Information
                       </h4>
-                      <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                      <div className="space-y-2 text-sm text-gray-600">
                         <p>
                           <strong>Name:</strong> {order.firstName}{" "}
                           {order.lastName}
@@ -238,10 +238,10 @@ export default function TrackOrderPage() {
                       </div>
                     </div>
                     <div>
-                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-3">
                         Order Summary
                       </h4>
-                      <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                      <div className="space-y-2 text-sm text-gray-600">
                         <p>
                           <strong>Payment Method:</strong> {order.paymentMethod}
                         </p>
@@ -272,30 +272,30 @@ export default function TrackOrderPage() {
 
                   {/* Order Items */}
                   <div>
-                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-3">
                       Order Items
                     </h4>
                     <div className="space-y-3">
                       {order.items?.map((item: any, itemIndex: number) => (
                         <div
                           key={itemIndex}
-                          className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                         >
                           <div className="flex items-center space-x-3">
-                            <div className="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
+                            <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
                               <FiPackage className="w-6 h-6 text-gray-500" />
                             </div>
                             <div>
-                              <p className="font-medium text-gray-900 dark:text-white">
+                              <p className="font-medium text-gray-900">
                                 {item.productId?.name || "Product"}
                               </p>
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                              <p className="text-sm text-gray-500">
                                 Quantity: {item.quantity}
                               </p>
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="font-semibold text-gray-900 dark:text-white">
+                            <p className="font-semibold text-gray-900">
                               LE {item.price?.toFixed(2)}
                             </p>
                           </div>

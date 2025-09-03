@@ -25,9 +25,9 @@ const CollectionGrid = () => {
     return (
       <section
         id="collections"
-        className="px-4 py-16 mx-auto max-w-7xl bg-white sm:px-6 lg:px-8 dark:bg-gray-900"
+        className="px-4 py-16 mx-auto max-w-7xl bg-white sm:px-6 lg:px-8"
       >
-        <h2 className="mb-12 text-3xl font-bold text-center text-gray-900 dark:text-white">
+        <h2 className="mb-12 text-3xl font-bold text-center text-gray-900">
           Our Collections
         </h2>
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -43,9 +43,9 @@ const CollectionGrid = () => {
     return (
       <section
         id="collections"
-        className="px-4 py-16 mx-auto max-w-7xl bg-white sm:px-6 lg:px-8 dark:bg-gray-900"
+        className="px-4 py-16 mx-auto max-w-7xl bg-white sm:px-6 lg:px-8"
       >
-        <h2 className="mb-12 text-3xl font-bold text-center text-gray-900 dark:text-white">
+        <h2 className="mb-12 text-3xl font-bold text-center text-gray-900">
           Our Collections
         </h2>
         <div className="text-center text-red-600">
@@ -58,28 +58,28 @@ const CollectionGrid = () => {
   return (
     <section
       id="collections"
-      className="px-4 py-16 mx-auto max-w-7xl bg-white sm:px-6 lg:px-8 dark:bg-gray-900"
+      className="px-4 py-16 mx-auto max-w-7xl bg-white sm:px-6 lg:px-8"
     >
       {/* Best Sellers Section */}
       <div className="mb-16">
-        <h2 className="mb-12 text-3xl font-bold text-center text-gray-900 dark:text-white">
+        <h2 className="mb-12 text-3xl font-bold text-center text-gray-900">
           Best Sellers
         </h2>
 
         {topSellersLoading && (
-          <div className="text-center text-gray-600 dark:text-gray-400">
+          <div className="text-center text-gray-600">
             Loading best sellers...
           </div>
         )}
 
         {topSellersError && (
-          <div className="text-center text-red-600 dark:text-red-400">
+          <div className="text-center text-red-600">
             Error loading best sellers: {topSellersError}
           </div>
         )}
 
         {!topSellersLoading && !topSellersError && topSellers.length === 0 && (
-          <div className="text-center text-gray-600 dark:text-gray-400">
+          <div className="text-center text-gray-600">
             No best sellers data available yet.
           </div>
         )}
@@ -99,7 +99,7 @@ const CollectionGrid = () => {
                   key={topSeller._id}
                   href={`/product/${topSeller.product._id}`}
                   className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl 
-                         transition-shadow duration-300 aspect-[3/4] bg-white dark:bg-gray-800 block"
+                         transition-shadow duration-300 aspect-[3/4] bg-white block"
                 >
                   {/* Badge for ranking */}
                   <div className="absolute top-2 left-2 z-20">

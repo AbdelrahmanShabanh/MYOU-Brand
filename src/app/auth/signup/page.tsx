@@ -52,7 +52,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Link href="/" className="flex justify-center">
           {/* <Image
@@ -64,10 +64,10 @@ export default function SignUpPage() {
             priority
           /> */}
         </Link>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Create your account
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+        <p className="mt-2 text-center text-sm text-gray-600">
           Or{" "}
           <Link
             href="/auth/signin"
@@ -79,10 +79,10 @@ export default function SignUpPage() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-red-50 dark:bg-red-900/50 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-md text-sm">
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
                 {error}
               </div>
             )}
@@ -90,7 +90,7 @@ export default function SignUpPage() {
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="block text-sm font-medium text-gray-700"
               >
                 Full Name
               </label>
@@ -107,9 +107,9 @@ export default function SignUpPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 
                            rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500 
-                           dark:bg-gray-700 dark:text-white sm:text-sm"
+                           sm:text-sm"
                   placeholder="Your Name"
                 />
               </div>
@@ -118,7 +118,7 @@ export default function SignUpPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="block text-sm font-medium text-gray-700"
               >
                 Email address
               </label>
@@ -136,9 +136,9 @@ export default function SignUpPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 
                            rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500 
-                           dark:bg-gray-700 dark:text-white sm:text-sm"
+                           sm:text-sm"
                   placeholder="you@example.com"
                 />
               </div>
@@ -147,7 +147,7 @@ export default function SignUpPage() {
             <div>
               <label
                 htmlFor="phone"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="block text-sm font-medium text-gray-700"
               >
                 Phone Number
               </label>
@@ -164,9 +164,9 @@ export default function SignUpPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, phone: e.target.value })
                   }
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 
                            rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500 
-                           dark:bg-gray-700 dark:text-white sm:text-sm"
+                           sm:text-sm"
                   placeholder="+20 123 456 7890"
                 />
               </div>
@@ -175,7 +175,7 @@ export default function SignUpPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="block text-sm font-medium text-gray-700"
               >
                 Password
               </label>
@@ -193,9 +193,9 @@ export default function SignUpPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 
                            rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500 
-                           dark:bg-gray-700 dark:text-white sm:text-sm"
+                           sm:text-sm"
                   placeholder="••••••••"
                 />
               </div>

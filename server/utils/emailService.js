@@ -27,6 +27,12 @@ class EmailService {
   // إرسال تأكيد الطلب عبر البريد الإلكتروني
   async sendOrderConfirmation(order, customerInfo) {
     try {
+      console.log("=== EMAIL SERVICE DEBUG ===");
+      console.log("Email Service Config:", {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD ? "***" : "NOT SET",
+        adminEmail: process.env.ADMIN_EMAIL,
+      });
       console.log("Sending order confirmation to:", customerInfo.email);
       console.log("Order details:", {
         orderId: order._id,
@@ -132,15 +138,26 @@ class EmailService {
         `,
       };
 
+      console.log("Attempting to send email...");
       const result = await this.transporter.sendMail(mailOptions);
       console.log(
-        "Order confirmation email sent successfully:",
+        "✅ Order confirmation email sent successfully:",
         result.messageId
       );
+      console.log("Email sent to:", customerInfo.email);
       return result;
     } catch (error) {
-      console.error("Error sending order confirmation email:", error.message);
-      console.error("Full error:", error);
+      console.error(
+        "❌ ERROR sending order confirmation email:",
+        error.message
+      );
+      console.error("Error details:", {
+        message: error.message,
+        code: error.code,
+        command: error.command,
+        responseCode: error.responseCode,
+        response: error.response,
+      });
       throw error;
     }
   }
@@ -215,11 +232,26 @@ class EmailService {
         `,
       };
 
+      console.log("Attempting to send admin notification...");
       const result = await this.transporter.sendMail(mailOptions);
-      console.log("Admin notification email sent:", result.messageId);
+      console.log(
+        "✅ Admin notification email sent successfully:",
+        result.messageId
+      );
+      console.log("Admin email sent to:", process.env.ADMIN_EMAIL);
       return result;
     } catch (error) {
-      console.error("Error sending admin notification email:", error);
+      console.error(
+        "❌ ERROR sending admin notification email:",
+        error.message
+      );
+      console.error("Error details:", {
+        message: error.message,
+        code: error.code,
+        command: error.command,
+        responseCode: error.responseCode,
+        response: error.response,
+      });
       throw error;
     }
   }

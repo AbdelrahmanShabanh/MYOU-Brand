@@ -35,7 +35,7 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="flex flex-col justify-center py-12 min-h-screen bg-gray-50 dark:bg-gray-900 sm:px-6 lg:px-8">
+    <div className="flex flex-col justify-center py-12 min-h-screen bg-gray-50 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Link href="/" className="flex justify-center">
           <Image
@@ -47,10 +47,10 @@ export default function SignInPage() {
             priority
           />
         </Link>
-        <h2 className="mt-6 text-3xl font-extrabold text-center text-gray-900 dark:text-white">
+        <h2 className="mt-6 text-3xl font-extrabold text-center text-gray-900">
           Sign in to your account
         </h2>
-        <p className="mt-2 text-sm text-center text-gray-600 dark:text-gray-400">
+        <p className="mt-2 text-sm text-center text-gray-600">
           Or{" "}
           <Link
             href="/auth/signup"
@@ -62,10 +62,10 @@ export default function SignInPage() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="px-4 py-8 bg-white shadow dark:bg-gray-800 sm:rounded-lg sm:px-10">
+        <div className="px-4 py-8 bg-white shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="px-4 py-3 text-sm text-red-600 bg-red-50 rounded-md border border-red-200 dark:bg-red-900/50 dark:border-red-800 dark:text-red-400">
+              <div className="px-4 py-3 text-sm text-red-600 bg-red-50 rounded-md border border-red-200">
                 {error}
               </div>
             )}
@@ -73,7 +73,7 @@ export default function SignInPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="block text-sm font-medium text-gray-700"
               >
                 Email address
               </label>
@@ -91,7 +91,7 @@ export default function SignInPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="block py-2 pr-3 pl-10 w-full rounded-md border border-gray-300 shadow-sm dark:border-gray-600 focus:ring-pink-500 focus:border-pink-500 dark:bg-gray-700 dark:text-white sm:text-sm"
+                  className="block py-2 pr-3 pl-10 w-full rounded-md border border-gray-300 shadow-sm focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
                   placeholder="you@example.com"
                 />
               </div>
@@ -100,7 +100,7 @@ export default function SignInPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="block text-sm font-medium text-gray-700"
               >
                 Password
               </label>
@@ -118,7 +118,7 @@ export default function SignInPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
-                  className="block py-2 pr-3 pl-10 w-full rounded-md border border-gray-300 shadow-sm dark:border-gray-600 focus:ring-pink-500 focus:border-pink-500 dark:bg-gray-700 dark:text-white sm:text-sm"
+                  className="block py-2 pr-3 pl-10 w-full rounded-md border border-gray-300 shadow-sm focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
                   placeholder="••••••••"
                 />
               </div>
@@ -134,7 +134,7 @@ export default function SignInPage() {
                 />
                 <label
                   htmlFor="remember-me"
-                  className="block ml-2 text-sm text-gray-900 dark:text-gray-300"
+                  className="block ml-2 text-sm text-gray-900"
                 >
                   Remember me
                 </label>
