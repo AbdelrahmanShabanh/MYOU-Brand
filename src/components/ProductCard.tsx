@@ -255,10 +255,10 @@ const ProductCard = ({
           disabled={soldOut}
           className={`w-full px-4 py-3 text-sm font-medium rounded-full border 
                                         ${
-                       soldOut
-                         ? "text-gray-400 border-gray-300 cursor-not-allowed"
-                         : "text-pink-600 border-pink-600 hover:bg-pink-50"
-                     } 
+                                          soldOut
+                                            ? "text-gray-400 border-gray-300 cursor-not-allowed"
+                                            : "text-pink-600 border-pink-600 hover:bg-pink-50"
+                                        } 
                      whitespace-nowrap`}
         >
           {soldOut ? "Sold Out" : "View Details"}

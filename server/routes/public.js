@@ -94,8 +94,17 @@ router.post("/track", async (req, res) => {
 // Create order (public route - no auth required)
 router.post("/", async (req, res) => {
   try {
+    console.log("=== ORDER CREATION DEBUG ===");
+    console.log("Request body:", req.body);
+    console.log("Email from request:", req.body.email);
+    console.log("Contact from request:", req.body.contact);
+    
     const Order = require("../models/Order");
     const emailService = require("../utils/emailService");
+    
+    // Test email service import
+    console.log("Email service imported:", !!emailService);
+    console.log("Email service methods:", Object.keys(emailService));
 
     const order = new Order({
       userId: req.body.userId,
@@ -134,26 +143,50 @@ router.post("/", async (req, res) => {
 
     // Send email notifications
     try {
+      console.log("=== EMAIL NOTIFICATION DEBUG ===");
+      console.log("Order ID:", order._id);
+      console.log("Customer email:", req.body.contact);
+
       const customerInfo = {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        email: req.body.contact, // Use contact as email
+        email: req.body.email, // Use the original email from request
         phone: req.body.phone,
         address: req.body.address,
         city: req.body.city,
         country: req.body.country,
       };
 
+      console.log("Customer info:", customerInfo);
+
       // Send email confirmation to customer
-      await emailService.sendOrderConfirmation(order, customerInfo);
+      console.log("Sending customer confirmation email...");
+      console.log("Email service object:", emailService);
+      console.log("sendOrderConfirmation method:", typeof emailService.sendOrderConfirmation);
+      
+      try {
+        await emailService.sendOrderConfirmation(order, customerInfo);
+        console.log("✅ Customer confirmation email sent successfully");
+      } catch (emailError) {
+        console.error("❌ Email sending failed:", emailError);
+        throw emailError;
+      }
 
       // Send admin notification
+      console.log("Sending admin notification email...");
       await emailService.sendAdminNotification(order, customerInfo);
+      console.log("✅ Admin notification email sent successfully");
+
+      console.log("=== EMAIL NOTIFICATIONS COMPLETED ===");
     } catch (notificationError) {
       console.error(
-        "Email notification error (order still saved):",
+        "❌ Email notification error (order still saved):",
         notificationError
       );
+      console.error("Error details:", {
+        message: notificationError.message,
+        stack: notificationError.stack,
+      });
       // Don't fail the order if notifications fail
     }
 

@@ -21,6 +21,14 @@ console.log("MONGODB_URI:", process.env.MONGODB_URI);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Railway-specific logging
+console.log("=== RAILWAY DEPLOYMENT DEBUG ===");
+console.log("PORT:", PORT);
+console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("RAILWAY_ENVIRONMENT:", process.env.RAILWAY_ENVIRONMENT);
+console.log("RAILWAY_SERVICE_NAME:", process.env.RAILWAY_SERVICE_NAME);
+console.log("=================================");
+
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -53,14 +61,26 @@ app.use(
 app.use(express.json());
 
 // MongoDB connection
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("✅ Connected to MongoDB successfully");
+  })
+  .catch((error) => {
+    console.error("❌ MongoDB connection failed:", error);
+    process.exit(1);
+  });
+
 const db = mongoose.connection;
-db.on("error", console.error.bind(console, "MongoDB connection error:"));
+db.on("error", (error) => {
+  console.error("❌ MongoDB connection error:", error);
+  process.exit(1);
+});
 db.once("open", () => {
-  console.log("Connected to MongoDB");
+  console.log("✅ MongoDB connection established");
 });
 
 // Import routes
@@ -98,6 +118,19 @@ app.get("/", (req, res) => {
     "API is running - CORS FIXED - Updated: " + new Date().toISOString()
   );
 });
+
+// Start server with better error handling
+app
+  .listen(PORT, "0.0.0.0", () => {
+    console.log("🚀 Server started successfully!");
+    console.log(`🌐 Server running on port ${PORT}`);
+    console.log(`🔗 API available at http://localhost:${PORT}`);
+    console.log("✅ Ready to handle requests");
+  })
+  .on("error", (error) => {
+    console.error("❌ Server failed to start:", error);
+    process.exit(1);
+  });
 
 // TODO: Add routes for auth, products, categories, orders, admin, upload
 

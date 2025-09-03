@@ -8,7 +8,9 @@
     "start": "next start",
     "server": "node server/index.js",
     "dev:server": "nodemon server/index.js",
-    "lint": "next lint"
+    "lint": "next lint",
+    "railway:start": "node server/index.js",
+    "railway:build": "echo 'No build step needed for Node.js server'"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.7.0",

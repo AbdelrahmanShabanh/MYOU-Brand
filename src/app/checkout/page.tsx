@@ -36,6 +36,7 @@ export default function CheckoutPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   useEffect(() => {
     setIsClient(true);
@@ -62,6 +63,16 @@ export default function CheckoutPage() {
       return () => document.removeEventListener("keydown", handleEscape);
     }
   }, [showSuccess, showError, router]);
+
+  // Debug modal state changes
+  useEffect(() => {
+    console.log(
+      "Modal state changed - showSuccess:",
+      showSuccess,
+      "showError:",
+      showError
+    );
+  }, [showSuccess, showError]);
 
   if (cartItems.length === 0) {
     return null;
@@ -275,20 +286,22 @@ export default function CheckoutPage() {
       // Clear local cart state for all users
       dispatch(clearCart());
 
-      // Show success modal FIRST
+      // Show success modal FIRST and force re-render
       setShowSuccess(true);
-      console.log("showSuccess state:", true);
+      console.log("showSuccess state set to true");
 
-      // Wait a bit before setting up redirect to ensure modal is visible
+      // Force a re-render by updating a dummy state
+      setForceUpdate((prev) => prev + 1);
+
+      // Wait for modal to be visible before setting up redirect
       setTimeout(() => {
+        console.log("Modal should be visible now, setting up redirect");
         // Redirect after 8 seconds to give users time to see the success message
         setTimeout(() => {
-          if (showSuccess) {
-            // Only redirect if modal is still open
-            router.push("/");
-          }
+          console.log("Redirecting to home page");
+          router.push("/");
         }, 8000);
-      }, 100);
+      }, 500);
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error ? err.message : "An error occurred";
@@ -301,10 +314,18 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Debug Info */}
+      {process.env.NODE_ENV === "development" && (
+        <div className="fixed top-4 left-4 z-50 p-2 text-xs text-black bg-yellow-200 rounded">
+          Debug: showSuccess={showSuccess.toString()}, forceUpdate={forceUpdate}
+        </div>
+      )}
+
       {/* Success Message */}
       {showSuccess && (
         <div
-          className="flex fixed inset-0 z-50 justify-center items-center bg-black bg-opacity-50 animate-fadeIn"
+          className="flex fixed inset-0 z-[9999] justify-center items-center bg-black bg-opacity-50"
+          style={{ animation: "fadeIn 0.3s ease-in-out" }}
           onClick={() => router.push("/")}
         >
           <div
