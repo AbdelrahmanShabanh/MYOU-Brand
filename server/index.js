@@ -93,7 +93,9 @@ app.use("/api/hero-slider", heroSliderRoutes);
 
 // Example route
 app.get("/", (req, res) => {
-  res.send("API is running");
+  res.send(
+    "API is running - CORS FIXED - Updated: " + new Date().toISOString()
+  );
 });
 
 // TODO: Add routes for auth, products, categories, orders, admin, upload
