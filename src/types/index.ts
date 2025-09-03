@@ -25,6 +25,7 @@ export interface Product {
   category: string;
   stock: number;
   sizes?: string[];
+  sizeStock?: Record<string, number>;
   isSoldOut?: boolean;
   discount?: number;
 }

@@ -22,6 +22,9 @@ export default function NewProductPage() {
     features: "",
     shippingInfo: "",
     shippingCost: "",
+    sizes: [] as string[],
+    hasSizes: false,
+    sizeStock: {} as Record<string, number>,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -193,6 +196,8 @@ export default function NewProductPage() {
                   .map((f) => f.trim())
                   .filter(Boolean)
               : undefined,
+            sizes: formData.hasSizes ? formData.sizes : undefined,
+            sizeStock: formData.hasSizes ? formData.sizeStock : undefined,
             shippingInfo: formData.shippingInfo || undefined,
             shippingCost: formData.shippingCost
               ? Number(formData.shippingCost)
@@ -345,6 +350,151 @@ export default function NewProductPage() {
                   {errors.stock}
                 </p>
               )}
+            </div>
+
+            <div>
+              <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                Size Options
+              </label>
+              <div className="space-y-3">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="hasSizes"
+                    name="hasSizes"
+                    checked={formData.hasSizes}
+                    onChange={handleChange}
+                    className="mr-2"
+                  />
+                  <label
+                    htmlFor="hasSizes"
+                    className="text-sm text-gray-700 dark:text-gray-300"
+                  >
+                    This product has different sizes
+                  </label>
+                </div>
+
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Check this box if customers need to select a size when
+                  purchasing this product. If unchecked, the product will be
+                  treated as "One Size" and no size selection will be shown.
+                </p>
+
+                {formData.hasSizes && (
+                  <div className="space-y-2">
+                    <label className="block text-sm text-gray-600 dark:text-gray-400">
+                      Available Sizes (check all that apply):
+                    </label>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Note: Selecting &quot;One Size&quot; will automatically
+                      clear other size selections.
+                    </p>
+                    <div className="grid grid-cols-4 gap-2">
+                      {[
+                        "XS",
+                        "S",
+                        "M",
+                        "L",
+                        "XL",
+                        "XXL",
+                        "XXXL",
+                        "One Size",
+                      ].map((size) => (
+                        <label
+                          key={size}
+                          className="flex items-center space-x-2"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={formData.sizes.includes(size)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                {
+                                  /* If "One Size" is selected, clear other sizes */
+                                }
+                                if (size === "One Size") {
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    sizes: ["One Size"],
+                                  }));
+                                } else {
+                                  {
+                                    /* If selecting a regular size, remove "One Size" */
+                                  }
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    sizes: [
+                                      ...prev.sizes.filter(
+                                        (s) => s !== "One Size"
+                                      ),
+                                      size,
+                                    ],
+                                  }));
+                                }
+                              } else {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  sizes: prev.sizes.filter((s) => s !== size),
+                                }));
+                              }
+                            }}
+                            className="text-pink-600 rounded border-gray-300 focus:ring-pink-500"
+                          />
+                          <span className="text-sm text-gray-700 dark:text-gray-300">
+                            {size}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                    {formData.sizes.length === 0 && (
+                      <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+                        Please select at least one size
+                      </p>
+                    )}
+
+                    {/* Size-based Stock Input */}
+                    {formData.sizes.length > 0 && (
+                      <div className="mt-4 space-y-3">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Stock per Size
+                        </label>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Set the stock quantity for each available size
+                        </p>
+                        <div className="grid grid-cols-2 gap-3">
+                          {formData.sizes.map((size) => (
+                            <div key={size} className="space-y-1">
+                              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">
+                                {size} Stock
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                value={formData.sizeStock[size] || ""}
+                                onChange={(e) => {
+                                  const value =
+                                    e.target.value === ""
+                                      ? 0
+                                      : parseInt(e.target.value);
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    sizeStock: {
+                                      ...prev.sizeStock,
+                                      [size]: value,
+                                    },
+                                  }));
+                                }}
+                                className="px-3 py-2 w-full text-sm rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                                placeholder="0"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div>

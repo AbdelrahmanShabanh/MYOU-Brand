@@ -22,6 +22,7 @@ interface ProductCardProps {
   images?: string[];
   stock?: number;
   sizes?: string[];
+  sizeStock?: Record<string, number>;
   isSoldOut?: boolean;
   discount?: number;
 }
@@ -34,6 +35,7 @@ const ProductCard = ({
   images,
   stock,
   sizes,
+  sizeStock,
   isSoldOut,
   discount,
 }: ProductCardProps) => {
@@ -42,7 +44,7 @@ const ProductCard = ({
   const wishlistItems = useAppSelector((state) => state.wishlist.items);
   const isInWishlist = wishlistItems.some((item) => item.id === id);
   const productRef = useRef<HTMLDivElement>(null);
-  const [selectedSize, setSelectedSize] = useState<string>("");
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [showSizeError, setShowSizeError] = useState(false);
 
   const mainImage = images && images.length > 0 ? images[0] : image;
@@ -120,7 +122,7 @@ const ProductCard = ({
           } as CartItem)
         );
         dispatch(toggleCart());
-        setSelectedSize(""); // Reset size selection
+        setSelectedSize(null); // Reset size selection
       }, 500);
     }
   };
@@ -212,20 +214,38 @@ const ProductCard = ({
             Select Size
           </label>
           <div className="grid grid-cols-4 gap-2">
-            {sizes.map((size) => (
-              <button
-                key={size}
-                onClick={() => setSelectedSize(size)}
-                className={`px-3 py-2 text-sm font-medium rounded-md border transition-colors
-                  ${
-                    selectedSize === size
-                      ? "bg-pink-600 text-white border-pink-600"
-                      : "bg-white text-gray-700 border-gray-300 hover:border-pink-300"
-                  }`}
-              >
-                {size}
-              </button>
-            ))}
+            {sizes.map((size) => {
+              const sizeAvailable = sizeStock
+                ? (sizeStock[size] || 0) > 0
+                : true;
+              const isSizeSoldOut = sizeStock
+                ? (sizeStock[size] || 0) === 0
+                : false;
+
+              return (
+                <button
+                  key={size}
+                  onClick={() => sizeAvailable && setSelectedSize(size)}
+                  disabled={!sizeAvailable}
+                  className={`px-3 py-2 text-sm font-medium rounded-md border transition-colors
+                    ${
+                      selectedSize === size
+                        ? "bg-pink-600 text-white border-pink-600"
+                        : !sizeAvailable
+                        ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                        : "bg-white text-gray-700 border-gray-300 hover:border-pink-300"
+                    }`}
+                  title={!sizeAvailable ? `${size} - Out of Stock` : size}
+                >
+                  {size}
+                  {isSizeSoldOut && (
+                    <span className="block text-xs text-red-500">
+                      Out of Stock
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
           {showSizeError && (
             <p className="mt-2 text-sm text-red-600">Please select a size</p>

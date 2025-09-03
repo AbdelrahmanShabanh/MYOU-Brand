@@ -72,6 +72,12 @@ export default function CheckoutPage() {
       "showError:",
       showError
     );
+
+    // Additional debugging for success modal
+    if (showSuccess) {
+      console.log("🎉 SUCCESS MODAL SHOULD BE VISIBLE NOW!");
+      console.log("Modal state confirmed:", showSuccess);
+    }
   }, [showSuccess, showError]);
 
   if (cartItems.length === 0) {
@@ -306,11 +312,20 @@ export default function CheckoutPage() {
       dispatch(clearCart());
 
       // Show success modal FIRST and force re-render
+      console.log("About to set showSuccess to true");
       setShowSuccess(true);
       console.log("showSuccess state set to true");
 
+      // Log the current state after setting
+      setTimeout(() => {
+        console.log("showSuccess state after timeout:", showSuccess);
+      }, 100);
+
       // Force a re-render by updating a dummy state
       setForceUpdate((prev) => prev + 1);
+
+      // Add a small delay to ensure state update is processed
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Wait for modal to be visible before setting up redirect
       setTimeout(() => {
@@ -340,15 +355,47 @@ export default function CheckoutPage() {
         </div>
       )}
 
+      {/* Always show debug info in development */}
+      <div className="fixed top-4 right-4 z-50 p-2 text-xs text-black bg-green-200 rounded">
+        Modal State: {showSuccess ? "SHOWING" : "HIDDEN"}
+        <button
+          onClick={() => setShowSuccess(true)}
+          className="ml-2 px-2 py-1 bg-blue-500 text-white rounded text-xs"
+        >
+          Test Modal
+        </button>
+      </div>
+
       {/* Success Message */}
       {showSuccess && (
         <div
           className="flex fixed inset-0 z-[9999] justify-center items-center bg-black bg-opacity-50"
-          style={{ animation: "fadeIn 0.3s ease-in-out" }}
+          style={{
+            animation: "fadeIn 0.3s ease-in-out",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          }}
+          onClick={(e) => e.stopPropagation()}
         >
           <div
             className="relative p-8 mx-4 max-w-md text-center bg-white rounded-lg shadow-xl animate-scaleIn"
             onClick={(e) => e.stopPropagation()}
+            style={{
+              position: "relative",
+              zIndex: 10000,
+              backgroundColor: "white",
+              borderRadius: "8px",
+              boxShadow:
+                "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+            }}
           >
             {/* Close button */}
             <button
@@ -398,8 +445,12 @@ export default function CheckoutPage() {
               Order Submitted Successfully!
             </h3>
             <p className="mb-4 text-gray-600">
-              We have sent a confirmation email to your inbox. 
-              <span className="font-semibold text-pink-600"> Please check your spam emails</span> if you don&apos;t see it in your main inbox.
+              We have sent a confirmation email to your inbox.
+              <span className="font-semibold text-pink-600">
+                {" "}
+                Please check your spam emails
+              </span>{" "}
+              if you don&apos;t see it in your main inbox.
             </p>
             <p className="mb-4 text-sm text-gray-500">
               Thank you for choosing MYOU!

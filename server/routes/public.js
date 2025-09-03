@@ -102,9 +102,17 @@ router.post("/", async (req, res) => {
     const Order = require("../models/Order");
     const emailService = require("../utils/emailService");
 
-    // Test email service import
+    // Test email service import and configuration
     console.log("Email service imported:", !!emailService);
     console.log("Email service methods:", Object.keys(emailService));
+    console.log("Environment variables check:");
+    console.log(
+      "- RESEND_API_KEY:",
+      process.env.RESEND_API_KEY ? "SET" : "NOT SET"
+    );
+    console.log("- FROM_EMAIL:", process.env.FROM_EMAIL);
+    console.log("- ADMIN_EMAIL:", process.env.ADMIN_EMAIL);
+    console.log("- SMTP_ENABLED:", !!process.env.SMTP_HOST);
 
     const order = new Order({
       userId: req.body.userId,
@@ -135,9 +143,35 @@ router.post("/", async (req, res) => {
     if (order.items && Array.isArray(order.items)) {
       const Product = require("../models/Product");
       for (const item of order.items) {
-        await Product.findByIdAndUpdate(item.productId, {
-          $inc: { stock: -item.quantity },
-        });
+        const product = await Product.findById(item.productId);
+        if (product) {
+          // If product has size-based stock, decrement the specific size
+          if (
+            item.size &&
+            product.sizeStock &&
+            product.sizeStock.has(item.size)
+          ) {
+            const currentSizeStock = product.sizeStock.get(item.size) || 0;
+            if (currentSizeStock >= item.quantity) {
+              product.sizeStock.set(
+                item.size,
+                currentSizeStock - item.quantity
+              );
+              await product.save();
+            } else {
+              throw new Error(`Insufficient stock for size ${item.size}`);
+            }
+          } else {
+            // Fallback to general stock for backward compatibility
+            if (product.stock >= item.quantity) {
+              await Product.findByIdAndUpdate(item.productId, {
+                $inc: { stock: -item.quantity },
+              });
+            } else {
+              throw new Error("Insufficient stock");
+            }
+          }
+        }
       }
     }
 
@@ -145,12 +179,12 @@ router.post("/", async (req, res) => {
     try {
       console.log("=== EMAIL NOTIFICATION DEBUG ===");
       console.log("Order ID:", order._id);
-      console.log("Customer email:", req.body.contact);
+      console.log("Customer email:", req.body.email);
 
       const customerInfo = {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        email: req.body.email, // Use the original email from request
+        email: req.body.contact, // Use the same email field as the order
         phone: req.body.phone,
         address: req.body.address,
         city: req.body.city,

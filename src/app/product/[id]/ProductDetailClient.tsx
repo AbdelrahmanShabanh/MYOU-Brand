@@ -10,14 +10,21 @@ import { motion, AnimatePresence } from "framer-motion";
 import ProductCard from "@/components/ProductCard";
 import { useRandomProducts } from "@/hooks/useRandomProducts";
 
-const sizes = [
-  { value: "S", label: "S" },
-  { value: "M", label: "M" },
-  { value: "L", label: "L" },
-  { value: "XL", label: "XL" },
-  { value: "XXL", label: "XXL" },
-  { value: "XXXL", label: "XXXL" },
-];
+// Use product sizes if available, otherwise show default sizes
+const getAvailableSizes = (productSizes?: string[]) => {
+  if (productSizes && productSizes.length > 0) {
+    return productSizes.map((size) => ({ value: size, label: size }));
+  }
+  // Fallback to default sizes if no product sizes are set
+  return [
+    { value: "S", label: "S" },
+    { value: "M", label: "M" },
+    { value: "L", label: "L" },
+    { value: "XL", label: "XL" },
+    { value: "XXL", label: "XXL" },
+    { value: "XXXL", label: "XXXL" },
+  ];
+};
 
 const fallbackImage = "/images/products/placeholder.jpg";
 const fallbackFeatures = [
@@ -158,7 +165,7 @@ export default function ProductDetailClient({
                 </button>
               </div>
               <div className="grid grid-cols-6 gap-2">
-                {sizes.map((size) => (
+                {getAvailableSizes(product.sizes).map((size) => (
                   <button
                     key={size.value}
                     onClick={() => {

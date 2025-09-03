@@ -8,8 +8,13 @@ const productSchema = new mongoose.Schema(
     description: { type: String },
     category: { type: String, required: true },
     categorySlug: { type: String, index: true },
-    stock: { type: Number, default: 10 },
+    stock: { type: Number, default: 10 }, // Overall stock (deprecated, kept for backward compatibility)
     sizes: [{ type: String }], // Available sizes (e.g., ["S", "M", "L", "XL"])
+    sizeStock: {
+      type: Map,
+      of: Number,
+      default: new Map(),
+    }, // Stock per size: { "S": 5, "M": 10, "L": 3 }
     discount: { type: Number, default: 0 }, // percentage or fixed amount
     featured: { type: Boolean, default: false },
     features: {
