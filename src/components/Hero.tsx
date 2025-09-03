@@ -27,11 +27,11 @@ const Hero = () => {
 
   if (loading) {
     return (
-      <div className="relative h-[80vh] w-full overflow-hidden mt-16 bg-gray-200 dark:bg-gray-800 animate-pulse">
+      <div className="relative h-[80vh] w-full overflow-hidden mt-16 bg-gray-200 animate-pulse">
         <div className="flex absolute inset-0 z-20 flex-col justify-center items-center">
-          <div className="mb-4 w-1/2 h-12 bg-gray-300 rounded animate-pulse dark:bg-gray-600"></div>
-          <div className="mb-8 w-1/3 h-6 bg-gray-300 rounded animate-pulse dark:bg-gray-600"></div>
-          <div className="w-40 h-12 bg-gray-300 rounded-full animate-pulse dark:bg-gray-600"></div>
+          <div className="mb-4 w-1/2 h-12 bg-gray-300 rounded animate-pulse"></div>
+          <div className="mb-8 w-1/3 h-6 bg-gray-300 rounded animate-pulse"></div>
+          <div className="w-40 h-12 bg-gray-300 rounded-full animate-pulse"></div>
         </div>
       </div>
     );
@@ -39,12 +39,12 @@ const Hero = () => {
 
   if (error || slides.length === 0) {
     return (
-      <div className="relative h-[80vh] w-full overflow-hidden mt-16 bg-gray-100 dark:bg-gray-900">
+      <div className="relative h-[80vh] w-full overflow-hidden mt-16 bg-gray-100">
         <div className="flex absolute inset-0 z-20 flex-col justify-center items-center">
-          <h1 className="mb-4 text-4xl font-bold text-gray-900 md:text-6xl dark:text-white">
+          <h1 className="mb-4 text-4xl font-bold text-gray-900 md:text-6xl">
             Welcome to MYOU
           </h1>
-          <p className="mb-8 text-xl text-gray-600 md:text-2xl dark:text-gray-300">
+          <p className="mb-8 text-xl text-gray-600 md:text-2xl">
             Discover Elegant Modest Fashion
           </p>
           <button

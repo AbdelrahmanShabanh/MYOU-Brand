@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
 interface SkeletonProps {
   className?: string;
 }
 
 export function Skeleton({ className }: SkeletonProps) {
-  return <div className={`animate-pulse bg-gray-200 dark:bg-gray-800 rounded ${className}`} />;
+  return <div className={`animate-pulse bg-gray-200 rounded ${className}`} />;
 }
 
 export function ProductCardSkeleton() {
@@ -61,4 +61,4 @@ export function CartItemSkeleton() {
       <Skeleton className="h-6 w-16" />
     </div>
   );
-} 
+}

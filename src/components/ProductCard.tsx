@@ -140,7 +140,7 @@ const ProductCard = ({
 
   return (
     <div ref={productRef} className="relative group">
-      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
+      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg bg-gray-100">
         {validImage ? (
           <Image
             src={mainImage}
@@ -186,7 +186,7 @@ const ProductCard = ({
       </div>
 
       <div className="mt-2">
-        <h3 className="text-xs font-medium text-gray-900 truncate sm:text-sm dark:text-gray-100">
+        <h3 className="text-xs font-medium text-gray-900 truncate sm:text-sm">
           {name}
         </h3>
         {discount && discount > 0 ? (
@@ -199,7 +199,7 @@ const ProductCard = ({
             </span>
           </div>
         ) : (
-          <p className="mt-0.5 text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">
+          <p className="mt-0.5 text-xs sm:text-sm font-medium text-gray-900">
             LE {price.toFixed(2)}
           </p>
         )}

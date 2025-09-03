@@ -1,11 +1,14 @@
-'use client';
+"use client";
 
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { removeFromWishlist, toggleWishlist } from '@/store/slices/wishlistSlice';
-import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
-import { FiX, FiShoppingBag } from 'react-icons/fi';
-import { useRouter } from 'next/navigation';
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import {
+  removeFromWishlist,
+  toggleWishlist,
+} from "@/store/slices/wishlistSlice";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+import { FiX, FiShoppingBag } from "react-icons/fi";
+import { useRouter } from "next/navigation";
 
 const Wishlist = () => {
   const dispatch = useAppDispatch();
@@ -28,19 +31,19 @@ const Wishlist = () => {
             onClick={() => dispatch(toggleWishlist())}
             className="fixed inset-0 z-50 backdrop-blur-sm bg-black/30"
           />
-          
+
           <motion.div
-            initial={{ x: '100%' }}
+            initial={{ x: "100%" }}
             animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 20 }}
-            className="flex fixed top-0 right-0 z-50 flex-col w-full max-w-md h-full bg-white shadow-xl dark:bg-gray-900"
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 20 }}
+            className="flex fixed top-0 right-0 z-50 flex-col w-full max-w-md h-full bg-white shadow-xl"
           >
-            <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white">Wishlist</h2>
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <h2 className="text-lg font-medium text-gray-900">Wishlist</h2>
               <button
                 onClick={() => dispatch(toggleWishlist())}
-                className="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400"
+                className="text-gray-400 hover:text-gray-500"
               >
                 <FiX className="w-6 h-6" />
               </button>
@@ -49,11 +52,13 @@ const Wishlist = () => {
             <div className="overflow-y-auto flex-1 px-4 py-6 sm:px-6">
               {items.length === 0 ? (
                 <div className="py-12 text-center">
-                  <div className="mb-4 text-gray-500 dark:text-gray-400">Your wishlist is empty</div>
+                  <div className="mb-4 text-gray-500">
+                    Your wishlist is empty
+                  </div>
                   <button
                     onClick={() => {
                       dispatch(toggleWishlist());
-                      router.push('/');
+                      router.push("/");
                     }}
                     className="font-medium text-pink-600 hover:text-pink-500"
                   >
@@ -61,7 +66,7 @@ const Wishlist = () => {
                   </button>
                 </div>
               ) : (
-                <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+                <ul className="divide-y divide-gray-200">
                   {items.map((item) => (
                     <li key={item.id} className="flex py-6">
                       <div className="overflow-hidden relative flex-shrink-0 w-24 h-24 rounded-md">
@@ -76,16 +81,18 @@ const Wishlist = () => {
 
                       <div className="flex flex-col flex-1 ml-4">
                         <div>
-                          <div className="flex justify-between text-base font-medium text-gray-900 dark:text-white">
+                          <div className="flex justify-between text-base font-medium text-gray-900">
                             <h3>{item.name}</h3>
                             <button
-                              onClick={() => dispatch(removeFromWishlist(item.id))}
-                              className="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400"
+                              onClick={() =>
+                                dispatch(removeFromWishlist(item.id))
+                              }
+                              className="text-gray-400 hover:text-gray-500"
                             >
                               <FiX className="w-5 h-5" />
                             </button>
                           </div>
-                          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                          <p className="mt-1 text-sm text-gray-500">
                             LE {item.price.toFixed(2)}
                           </p>
                         </div>
@@ -112,4 +119,4 @@ const Wishlist = () => {
   );
 };
 
-export default Wishlist; 
+export default Wishlist;

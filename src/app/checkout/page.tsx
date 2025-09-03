@@ -229,6 +229,13 @@ export default function CheckoutPage() {
       }
 
       const token = isClient ? localStorage.getItem("token") : null;
+
+      console.log("Submitting order:", orderBody);
+      console.log(
+        "API URL:",
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+      );
+
       const res = await fetch(
         `${
           process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
@@ -242,6 +249,8 @@ export default function CheckoutPage() {
           body: JSON.stringify(orderBody),
         }
       );
+
+      console.log("Order response status:", res.status);
 
       if (!res.ok) {
         const data = await res.json();
@@ -276,7 +285,7 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       {/* Success Message */}
       {showSuccess && (
         <div

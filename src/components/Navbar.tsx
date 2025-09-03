@@ -49,24 +49,21 @@ const Navbar = () => {
   }));
 
   return (
-    <header className="fixed top-0 right-0 left-0 z-40 bg-white shadow-sm dark:bg-gray-900">
+    <header className="fixed top-0 right-0 left-0 z-40 bg-white shadow-sm">
       <nav className="px-4 mx-auto max-w-7xl h-16 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-full">
           {/* Mobile menu button */}
           <div className="flex items-center md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300"
+              className="text-gray-500 hover:text-gray-600"
             >
               {isMobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
             </button>
           </div>
 
           {/* Logo */}
-          <Link
-            href="/"
-            className="text-2xl font-bold text-pink-600 dark:text-pink-500"
-          >
+          <Link href="/" className="text-2xl font-bold text-pink-600">
             <Image
               src="/icons/myoulog.png"
               alt="MYOU"
@@ -85,7 +82,7 @@ const Navbar = () => {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="w-16 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"
+                    className="w-16 h-4 bg-gray-200 rounded animate-pulse"
                   />
                 ))}
               </div>
@@ -94,19 +91,19 @@ const Navbar = () => {
               <div className="flex space-x-8">
                 <Link
                   href="/collections/scarves"
-                  className="text-sm font-medium text-gray-600 hover:text-pink-600 dark:text-gray-300 dark:hover:text-pink-500"
+                  className="text-sm font-medium text-gray-600 hover:text-pink-600"
                 >
                   Scarves
                 </Link>
                 <Link
                   href="/collections/kimonos"
-                  className="text-sm font-medium text-gray-600 hover:text-pink-600 dark:text-gray-300 dark:hover:text-pink-500"
+                  className="text-sm font-medium text-gray-600 hover:text-pink-600"
                 >
                   Kimonos
                 </Link>
                 <Link
                   href="/collections/burkini"
-                  className="text-sm font-medium text-gray-600 hover:text-pink-600 dark:text-gray-300 dark:hover:text-pink-500"
+                  className="text-sm font-medium text-gray-600 hover:text-pink-600"
                 >
                   Burkini
                 </Link>
@@ -117,7 +114,7 @@ const Navbar = () => {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-sm font-medium text-gray-600 hover:text-pink-600 dark:text-gray-300 dark:hover:text-pink-500 transition-colors duration-200"
+                  className="text-sm font-medium text-gray-600 hover:text-pink-600 transition-colors duration-200"
                 >
                   {link.label}
                 </Link>
@@ -126,7 +123,7 @@ const Navbar = () => {
             {isAdmin && (
               <Link
                 href="/admin"
-                className="flex items-center text-sm font-medium text-gray-600 hover:text-pink-600 dark:text-gray-300 dark:hover:text-pink-500"
+                className="flex items-center text-sm font-medium text-gray-600 hover:text-pink-600"
               >
                 <FiSettings className="mr-1 w-4 h-4" />
                 Admin
@@ -138,14 +135,14 @@ const Navbar = () => {
           <div className="flex items-center space-x-4">
             <Link
               href="/track-order"
-              className="p-2 text-gray-600 hover:text-pink-600 dark:text-gray-400 dark:hover:text-pink-500"
+              className="p-2 text-gray-600 hover:text-pink-600"
               title="Track Order"
             >
               <FiPackage className="w-6 h-6" />
             </Link>
             <button
               onClick={() => dispatch(toggleWishlist())}
-              className="relative p-2 text-gray-600 hover:text-pink-600 dark:text-gray-400 dark:hover:text-pink-500"
+              className="relative p-2 text-gray-600 hover:text-pink-600"
             >
               <FiHeart className="w-6 h-6" />
               {cartHydrated && wishlistItems.length > 0 && (
@@ -156,7 +153,7 @@ const Navbar = () => {
             </button>
             <button
               onClick={() => dispatch(toggleCart())}
-              className="relative p-2 text-gray-600 hover:text-pink-600 dark:text-gray-400 dark:hover:text-pink-500"
+              className="relative p-2 text-gray-600 hover:text-pink-600"
               data-cart-icon
             >
               <FiShoppingBag className="w-6 h-6" />
@@ -169,14 +166,14 @@ const Navbar = () => {
             {isAuthenticated ? (
               <Link
                 href="/auth/signin"
-                className="p-2 text-gray-600 hover:text-pink-600 dark:text-gray-400 dark:hover:text-pink-500"
+                className="p-2 text-gray-600 hover:text-pink-600"
               >
                 <FiUser className="w-6 h-6" />
               </Link>
             ) : (
               <Link
                 href="/auth/signin"
-                className="p-2 text-gray-600 hover:text-pink-600 dark:text-gray-400 dark:hover:text-pink-500"
+                className="p-2 text-gray-600 hover:text-pink-600"
               >
                 <FiUser className="w-6 h-6" />
               </Link>
@@ -192,7 +189,7 @@ const Navbar = () => {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="overflow-hidden bg-white border-t border-gray-200 shadow-md md:hidden dark:border-gray-700 dark:bg-gray-900"
+              className="overflow-hidden bg-white border-t border-gray-200 shadow-md md:hidden"
             >
               <div className="py-2">
                 {loading ? (
@@ -201,7 +198,7 @@ const Navbar = () => {
                     {[1, 2, 3].map((i) => (
                       <div
                         key={i}
-                        className="mx-4 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"
+                        className="mx-4 h-4 bg-gray-200 rounded animate-pulse"
                       />
                     ))}
                   </div>
@@ -210,21 +207,21 @@ const Navbar = () => {
                   <>
                     <Link
                       href="/collections/scarves"
-                      className="block px-4 py-2 text-sm font-medium text-gray-600 hover:text-pink-600 dark:text-gray-300 dark:hover:text-pink-500"
+                      className="block px-4 py-2 text-sm font-medium text-gray-600 hover:text-pink-600"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Scarves
                     </Link>
                     <Link
                       href="/collections/kimonos"
-                      className="block px-4 py-2 text-sm font-medium text-gray-600 hover:text-pink-600 dark:text-gray-300 dark:hover:text-pink-500"
+                      className="block px-4 py-2 text-sm font-medium text-gray-600 hover:text-pink-600"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Kimonos
                     </Link>
                     <Link
                       href="/collections/burkini"
-                      className="block px-4 py-2 text-sm font-medium text-gray-600 hover:text-pink-600 dark:text-gray-300 dark:hover:text-pink-500"
+                      className="block px-4 py-2 text-sm font-medium text-gray-600 hover:text-pink-600"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Burkini
@@ -236,7 +233,7 @@ const Navbar = () => {
                     <Link
                       key={link.href}
                       href={link.href}
-                      className="block px-4 py-2 text-sm font-medium text-gray-600 hover:text-pink-600 dark:text-gray-300 dark:hover:text-pink-500"
+                      className="block px-4 py-2 text-sm font-medium text-gray-600 hover:text-pink-600"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       {link.label}
