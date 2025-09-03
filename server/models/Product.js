@@ -7,6 +7,7 @@ const productSchema = new mongoose.Schema(
     images: [{ type: String }], // URLs or GridFS IDs
     description: { type: String },
     category: { type: String, required: true },
+    categorySlug: { type: String, index: true },
     stock: { type: Number, default: 10 },
     sizes: [{ type: String }], // Available sizes (e.g., ["S", "M", "L", "XL"])
     discount: { type: Number, default: 0 }, // percentage or fixed amount

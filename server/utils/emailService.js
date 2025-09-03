@@ -62,12 +62,21 @@ class EmailService {
   async sendOrderConfirmation(order, customerInfo) {
     try {
       console.log("=== EMAIL SERVICE DEBUG ===");
-      console.log("Sending order confirmation to:", customerInfo.email);
+      const toEmail = (customerInfo.email || "").toString().trim();
+      console.log("Sending order confirmation to:", toEmail);
       console.log("Order details:", {
         orderId: order._id,
         customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
         total: order.total,
       });
+
+      // Basic email format validation to avoid Resend invalid `to` errors
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(toEmail)) {
+        throw new Error(
+          "Invalid customer email address for confirmation email"
+        );
+      }
 
       const itemsList = order.items
         .map(
@@ -172,47 +181,24 @@ class EmailService {
           </div>
         `;
 
-      // Prefer Resend if configured; otherwise try SMTP directly
-      if (process.env.RESEND_API_KEY) {
-        const { data, error } = await this.resend.emails.send({
-          from: process.env.FROM_EMAIL || "noreply@yourdomain.com",
-          to: customerInfo.email,
-          subject,
-          html,
-        });
-        if (error) {
-          console.error("❌ Resend email error:", error);
-          if (this.smtpEnabled) {
-            console.log("Falling back to SMTP for order confirmation...");
-            const info = await this.sendViaSMTP(
-              customerInfo.email,
-              subject,
-              html
-            );
-            console.log(
-              "✅ Order confirmation email sent via SMTP:",
-              info.messageId || info.response
-            );
-            return info;
-          }
-          throw new Error(`Resend email failed: ${error.message}`);
-        }
-        console.log("✅ Order confirmation email sent successfully via Resend");
-        console.log("Email ID:", data?.id);
-        console.log("Email sent to:", customerInfo.email);
-        return data;
-      } else if (this.smtpEnabled) {
-        const info = await this.sendViaSMTP(customerInfo.email, subject, html);
-        console.log(
-          "✅ Order confirmation email sent via SMTP:",
-          info.messageId || info.response
-        );
-        return info;
-      } else {
-        throw new Error(
-          "No email provider configured (RESEND_API_KEY or SMTP settings required)"
-        );
+      // Resend-only send (no SMTP fallback, per user's request)
+      if (!process.env.RESEND_API_KEY) {
+        throw new Error("RESEND_API_KEY is not configured");
       }
+      const { data, error } = await this.resend.emails.send({
+        from: process.env.FROM_EMAIL || "noreply@yourdomain.com",
+        to: toEmail,
+        subject,
+        html,
+      });
+      if (error) {
+        console.error("❌ Resend email error:", error);
+        throw new Error(`Resend email failed: ${error.message}`);
+      }
+      console.log("✅ Order confirmation email sent successfully via Resend");
+      console.log("Email ID:", data?.id);
+      console.log("Email sent to:", toEmail);
+      return data;
     } catch (error) {
       console.error(
         "❌ ERROR sending order confirmation email:",
@@ -237,6 +223,12 @@ class EmailService {
             } - LE ${item.price}</li>`
         )
         .join("");
+
+      const adminTo = (process.env.ADMIN_EMAIL || "").toString().trim();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(adminTo)) {
+        throw new Error("Invalid ADMIN_EMAIL address");
+      }
 
       const subject = `New Order Received - Order #${order._id
         .toString()
@@ -308,50 +300,23 @@ class EmailService {
           </div>
         `;
 
-      if (process.env.RESEND_API_KEY) {
-        const { data, error } = await this.resend.emails.send({
-          from: process.env.FROM_EMAIL || "noreply@yourdomain.com",
-          to: process.env.ADMIN_EMAIL,
-          subject,
-          html,
-        });
-        if (error) {
-          console.error("❌ Resend admin notification error:", error);
-          if (this.smtpEnabled) {
-            console.log("Falling back to SMTP for admin notification...");
-            const info = await this.sendViaSMTP(
-              process.env.ADMIN_EMAIL,
-              subject,
-              html
-            );
-            console.log(
-              "✅ Admin notification email sent via SMTP:",
-              info.messageId || info.response
-            );
-            return info;
-          }
-          throw new Error(`Resend admin notification failed: ${error.message}`);
-        }
-        console.log("✅ Admin notification email sent successfully via Resend");
-        console.log("Email ID:", data?.id);
-        console.log("Admin email sent to:", process.env.ADMIN_EMAIL);
-        return data;
-      } else if (this.smtpEnabled) {
-        const info = await this.sendViaSMTP(
-          process.env.ADMIN_EMAIL,
-          subject,
-          html
-        );
-        console.log(
-          "✅ Admin notification email sent via SMTP:",
-          info.messageId || info.response
-        );
-        return info;
-      } else {
-        throw new Error(
-          "No email provider configured (RESEND_API_KEY or SMTP settings required)"
-        );
+      if (!process.env.RESEND_API_KEY) {
+        throw new Error("RESEND_API_KEY is not configured");
       }
+      const { data, error } = await this.resend.emails.send({
+        from: process.env.FROM_EMAIL || "noreply@yourdomain.com",
+        to: adminTo,
+        subject,
+        html,
+      });
+      if (error) {
+        console.error("❌ Resend admin notification error:", error);
+        throw new Error(`Resend admin notification failed: ${error.message}`);
+      }
+      console.log("✅ Admin notification email sent successfully via Resend");
+      console.log("Email ID:", data?.id);
+      console.log("Admin email sent to:", adminTo);
+      return data;
     } catch (error) {
       console.error(
         "❌ ERROR sending admin notification email:",

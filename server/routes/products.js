@@ -9,7 +9,14 @@ router.get("/", async (req, res) => {
   try {
     const { category, featured } = req.query;
     const filter = {};
-    if (category) filter.category = category;
+    if (category) {
+      // Accept both slug (e.g. "cover-ups") and plain name (any case)
+      const slug = String(category).toLowerCase();
+      filter.$or = [
+        { categorySlug: slug },
+        { category: new RegExp(`^${slug}$`, "i") },
+      ];
+    }
     if (featured === "true") filter.featured = true;
     const products = await Product.find(filter);
     res.json(products);
@@ -72,8 +79,17 @@ router.get("/:id", async (req, res) => {
 // Create product (admin only)
 router.post("/", auth, admin, async (req, res) => {
   try {
+    // Derive a slug from the category string
+    const category = (req.body.category || "").toString().trim();
+    const categorySlug = category
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
+
     const product = new Product({
       ...req.body,
+      category,
+      categorySlug,
       discount: req.body.discount || 0,
       featured: req.body.featured || false,
     });
@@ -92,6 +108,14 @@ router.put("/:id", auth, admin, async (req, res) => {
       discount: req.body.discount || 0,
       featured: req.body.featured || false,
     };
+    if (typeof req.body.category === "string") {
+      const category = req.body.category.trim();
+      update.category = category;
+      update.categorySlug = category
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "");
+    }
     const product = await Product.findByIdAndUpdate(req.params.id, update, {
       new: true,
     });
