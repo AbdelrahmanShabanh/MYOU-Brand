@@ -4,22 +4,6 @@ const nodemailer = require("nodemailer");
 // خدمة إرسال البريد الإلكتروني باستخدام Resend
 class EmailService {
   constructor() {
-    // Validate required environment variables
-    if (!process.env.RESEND_API_KEY) {
-      console.error("❌ CRITICAL: RESEND_API_KEY is not set!");
-      throw new Error("RESEND_API_KEY environment variable is required");
-    }
-
-    if (!process.env.FROM_EMAIL) {
-      console.error("❌ CRITICAL: FROM_EMAIL is not set!");
-      throw new Error("FROM_EMAIL environment variable is required");
-    }
-
-    if (!process.env.ADMIN_EMAIL) {
-      console.error("❌ CRITICAL: ADMIN_EMAIL is not set!");
-      throw new Error("ADMIN_EMAIL environment variable is required");
-    }
-
     // Create Resend client
     this.resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -92,6 +76,15 @@ class EmailService {
         throw new Error(
           "Invalid customer email address for confirmation email"
         );
+      }
+
+      // Check if FROM_EMAIL is the onboarding email (which has restrictions)
+      if (process.env.FROM_EMAIL === "onboarding@resend.dev") {
+        console.log(
+          "⚠️ WARNING: Using onboarding@resend.dev which has limited permissions"
+        );
+        console.log("⚠️ This email can only send to verified domains");
+        console.log("⚠️ Consider changing FROM_EMAIL to your verified domain");
       }
 
       const itemsList = order.items
@@ -197,78 +190,24 @@ class EmailService {
           </div>
         `;
 
-      // Try Resend first, fallback to SMTP if available
-
-      try {
-        if (!process.env.RESEND_API_KEY) {
-          throw new Error("RESEND_API_KEY is not configured");
-        }
-
-        const { data, error } = await this.resend.emails.send({
-          from: process.env.FROM_EMAIL || "noreply@yourdomain.com",
-          to: toEmail,
-          subject,
-          html,
-        });
-
-        if (error) {
-          console.error("❌ Resend email error:", error);
-          console.error("❌ Resend error details:", {
-            code: error.code,
-            message: error.message,
-            statusCode: error.statusCode,
-            details: error,
-          });
-
-          // Handle specific Resend errors
-          if (error.statusCode === 401) {
-            throw new Error("Resend API key is invalid or expired");
-          } else if (error.statusCode === 403) {
-            throw new Error(
-              "Resend API key doesn't have permission to send emails"
-            );
-          } else if (error.statusCode === 422) {
-            throw new Error(
-              "Invalid email format or domain not verified in Resend"
-            );
-          } else if (error.statusCode === 429) {
-            throw new Error("Resend rate limit exceeded");
-          } else {
-            throw new Error(
-              `Resend email failed: ${error.message || "Unknown error"}`
-            );
-          }
-        }
-
-        console.log("✅ Order confirmation email sent successfully via Resend");
-        console.log("Email ID:", data?.id);
-        console.log("Email sent to:", toEmail);
-        emailSent = true;
-        return data;
-      } catch (resendError) {
-        console.error("❌ Resend failed, trying SMTP fallback...");
-
-        // Try SMTP fallback if available
-        if (this.smtpEnabled && this.transporter) {
-          try {
-            const smtpResult = await this.sendViaSMTP(toEmail, subject, html);
-            console.log(
-              "✅ Order confirmation email sent successfully via SMTP fallback"
-            );
-            console.log("SMTP result:", smtpResult);
-            emailSent = true;
-            return smtpResult;
-          } catch (smtpError) {
-            console.error("❌ SMTP fallback also failed:", smtpError.message);
-            throw new Error(
-              `Both Resend and SMTP failed. Resend: ${resendError.message}, SMTP: ${smtpError.message}`
-            );
-          }
-        } else {
-          console.error("❌ No SMTP fallback available");
-          throw resendError;
-        }
+      // Resend-only send (no SMTP fallback, per user's request)
+      if (!process.env.RESEND_API_KEY) {
+        throw new Error("RESEND_API_KEY is not configured");
       }
+      const { data, error } = await this.resend.emails.send({
+        from: process.env.FROM_EMAIL || "noreply@yourdomain.com",
+        to: toEmail,
+        subject,
+        html,
+      });
+      if (error) {
+        console.error("❌ Resend email error:", error);
+        throw new Error(`Resend email failed: ${error.message}`);
+      }
+      console.log("✅ Order confirmation email sent successfully via Resend");
+      console.log("Email ID:", data?.id);
+      console.log("Email sent to:", toEmail);
+      return data;
     } catch (error) {
       console.error(
         "❌ ERROR sending order confirmation email:",
@@ -370,79 +309,23 @@ class EmailService {
           </div>
         `;
 
-      // Try Resend first, fallback to SMTP if available
-      try {
-        if (!process.env.RESEND_API_KEY) {
-          throw new Error("RESEND_API_KEY is not configured");
-        }
-
-        const { data, error } = await this.resend.emails.send({
-          from: process.env.FROM_EMAIL || "noreply@yourdomain.com",
-          to: adminTo,
-          subject,
-          html,
-        });
-
-        if (error) {
-          console.error("❌ Resend admin notification error:", error);
-          console.error("❌ Resend admin error details:", {
-            code: error.code,
-            message: error.message,
-            statusCode: error.statusCode,
-            details: error,
-          });
-
-          // Handle specific Resend errors
-          if (error.statusCode === 401) {
-            throw new Error("Resend API key is invalid or expired");
-          } else if (error.statusCode === 403) {
-            throw new Error(
-              "Resend API key doesn't have permission to send emails"
-            );
-          } else if (error.statusCode === 422) {
-            throw new Error(
-              "Invalid email format or domain not verified in Resend"
-            );
-          } else if (error.statusCode === 429) {
-            throw new Error("Resend rate limit exceeded");
-          } else {
-            throw new Error(
-              `Resend admin notification failed: ${
-                error.message || "Unknown error"
-              }`
-            );
-          }
-        }
-
-        console.log("✅ Admin notification email sent successfully via Resend");
-        console.log("Email ID:", data?.id);
-        console.log("Admin email sent to:", adminTo);
-        return data;
-      } catch (resendError) {
-        console.error(
-          "❌ Resend admin notification failed, trying SMTP fallback..."
-        );
-
-        // Try SMTP fallback if available
-        if (this.smtpEnabled && this.transporter) {
-          try {
-            const smtpResult = await this.sendViaSMTP(adminTo, subject, html);
-            console.log(
-              "✅ Admin notification email sent successfully via SMTP fallback"
-            );
-            console.log("SMTP result:", smtpResult);
-            return smtpResult;
-          } catch (smtpError) {
-            console.error("❌ SMTP fallback also failed:", smtpError.message);
-            throw new Error(
-              `Both Resend and SMTP failed for admin notification. Resend: ${resendError.message}, SMTP: ${smtpError.message}`
-            );
-          }
-        } else {
-          console.error("❌ No SMTP fallback available for admin notification");
-          throw resendError;
-        }
+      if (!process.env.RESEND_API_KEY) {
+        throw new Error("RESEND_API_KEY is not configured");
       }
+      const { data, error } = await this.resend.emails.send({
+        from: process.env.FROM_EMAIL || "noreply@yourdomain.com",
+        to: adminTo,
+        subject,
+        html,
+      });
+      if (error) {
+        console.error("❌ Resend admin notification error:", error);
+        throw new Error(`Resend admin notification failed: ${error.message}`);
+      }
+      console.log("✅ Admin notification email sent successfully via Resend");
+      console.log("Email ID:", data?.id);
+      console.log("Admin email sent to:", adminTo);
+      return data;
     } catch (error) {
       console.error(
         "❌ ERROR sending admin notification email:",

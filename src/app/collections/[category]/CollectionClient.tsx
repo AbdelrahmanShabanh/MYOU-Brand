@@ -20,6 +20,7 @@ export default function CollectionClient({
   const [showFilters, setShowFilters] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
   const [showDiscountedOnly, setShowDiscountedOnly] = useState(false);
+  const [filtersApplied, setFiltersApplied] = useState(false);
 
   // Get max price for price range slider
   const maxPrice = Math.max(...products.map((p) => p.price));
@@ -28,20 +29,25 @@ export default function CollectionClient({
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = [...products];
 
-    // Apply price range filter
-    filtered = filtered.filter(
-      (product) =>
-        product.price >= priceRange[0] && product.price <= priceRange[1]
-    );
+    // Only apply filters if user has explicitly set them
+    if (filtersApplied) {
+      // Apply price range filter only if it's not the default range
+      if (priceRange[0] !== 0 || priceRange[1] !== 1000) {
+        filtered = filtered.filter(
+          (product) =>
+            product.price >= priceRange[0] && product.price <= priceRange[1]
+        );
+      }
 
-    // Apply discount filter
-    if (showDiscountedOnly) {
-      filtered = filtered.filter(
-        (product) => product.discount && product.discount > 0
-      );
+      // Apply discount filter only if user checked it
+      if (showDiscountedOnly) {
+        filtered = filtered.filter(
+          (product) => product.discount && product.discount > 0
+        );
+      }
     }
 
-    // Apply sorting
+    // Apply sorting (this is always active)
     switch (sortBy) {
       case "newest":
         filtered.sort(
@@ -69,7 +75,19 @@ export default function CollectionClient({
     }
 
     return filtered;
-  }, [products, sortBy, priceRange, showDiscountedOnly]);
+  }, [products, sortBy, priceRange, showDiscountedOnly, filtersApplied]);
+
+  // Function to apply filters
+  const applyFilters = () => {
+    setFiltersApplied(true);
+  };
+
+  // Function to clear filters
+  const clearFilters = () => {
+    setPriceRange([0, maxPrice]);
+    setShowDiscountedOnly(false);
+    setFiltersApplied(false);
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 mt-16">
@@ -153,13 +171,16 @@ export default function CollectionClient({
               </label>
             </div>
 
-            {/* Clear Filters */}
-            <div className="flex items-end">
+            {/* Apply/Clear Filters */}
+            <div className="flex items-end gap-2">
               <button
-                onClick={() => {
-                  setPriceRange([0, maxPrice]);
-                  setShowDiscountedOnly(false);
-                }}
+                onClick={applyFilters}
+                className="px-4 py-2 text-sm text-white bg-pink-600 border border-pink-600 rounded-md hover:bg-pink-700 transition-colors"
+              >
+                Apply Filters
+              </button>
+              <button
+                onClick={clearFilters}
                 className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors"
               >
                 Clear Filters
@@ -171,7 +192,15 @@ export default function CollectionClient({
 
       {/* Results Count */}
       <div className="mb-6 text-sm text-gray-600">
-        Showing {filteredAndSortedProducts.length} of {products.length} products
+        {filtersApplied ? (
+          <span>
+            Showing {filteredAndSortedProducts.length} of {products.length}{" "}
+            products
+            {filtersApplied && " (filtered)"}
+          </span>
+        ) : (
+          <span>Showing all {products.length} products</span>
+        )}
       </div>
 
       {/* Products Grid */}
@@ -179,10 +208,7 @@ export default function CollectionClient({
         <div className="text-center py-12">
           <p className="text-gray-500">No products match your filters.</p>
           <button
-            onClick={() => {
-              setPriceRange([0, maxPrice]);
-              setShowDiscountedOnly(false);
-            }}
+            onClick={clearFilters}
             className="mt-2 text-pink-600 hover:underline"
           >
             Clear all filters

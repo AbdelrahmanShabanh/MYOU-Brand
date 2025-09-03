@@ -1,6 +1,82 @@
 const express = require("express");
 const Order = require("../models/Order");
+const emailService = require("../utils/emailService");
+
 const router = express.Router();
+
+// Simple test route to check if routing is working
+router.get("/", (req, res) => {
+  res.json({
+    message: "Public routes are working",
+    timestamp: new Date().toISOString(),
+    routes: ["/", "/test-email", "/top-sellers", "/"],
+  });
+});
+
+// Test endpoint to check email service status
+router.get("/test-email", async (req, res) => {
+  try {
+    console.log("=== TESTING EMAIL SERVICE ===");
+    console.log("Environment variables:");
+    console.log(
+      "- RESEND_API_KEY:",
+      process.env.RESEND_API_KEY ? "SET" : "NOT SET"
+    );
+    console.log("- FROM_EMAIL:", process.env.FROM_EMAIL);
+    console.log("- ADMIN_EMAIL:", process.env.ADMIN_EMAIL);
+    console.log("- SMTP_ENABLED:", !!process.env.SMTP_HOST);
+
+    // Test if email service is working
+    const testOrder = {
+      _id: "test123",
+      items: [{ productId: { name: "Test Product" }, quantity: 1, price: 100 }],
+      total: 100,
+      createdAt: new Date(),
+    };
+
+    const testCustomerInfo = {
+      firstName: "Test",
+      lastName: "User",
+      email: "test@example.com",
+      phone: "123456789",
+      address: "Test Address",
+      city: "Test City",
+      country: "Test Country",
+    };
+
+    try {
+      await emailService.sendOrderConfirmation(testOrder, testCustomerInfo);
+      res.json({
+        status: "success",
+        message: "Email service is working",
+        env: {
+          resendKey: !!process.env.RESEND_API_KEY,
+          fromEmail: !!process.env.FROM_EMAIL,
+          adminEmail: !!process.env.ADMIN_EMAIL,
+          smtpEnabled: !!process.env.SMTP_HOST,
+        },
+      });
+    } catch (emailError) {
+      res.json({
+        status: "error",
+        message: "Email service failed",
+        error: emailError.message,
+        env: {
+          resendKey: !!process.env.RESEND_API_KEY,
+          fromEmail: !!process.env.FROM_EMAIL,
+          adminEmail: !!process.env.ADMIN_EMAIL,
+          smtpEnabled: !!process.env.SMTP_HOST,
+        },
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Test failed",
+      error: error.message,
+    });
+  }
+});
 
 // Public route for top sellers (no auth required)
 router.get("/top-sellers", async (req, res) => {
@@ -102,17 +178,9 @@ router.post("/", async (req, res) => {
     const Order = require("../models/Order");
     const emailService = require("../utils/emailService");
 
-    // Test email service import and configuration
+    // Test email service import
     console.log("Email service imported:", !!emailService);
     console.log("Email service methods:", Object.keys(emailService));
-    console.log("Environment variables check:");
-    console.log(
-      "- RESEND_API_KEY:",
-      process.env.RESEND_API_KEY ? "SET" : "NOT SET"
-    );
-    console.log("- FROM_EMAIL:", process.env.FROM_EMAIL);
-    console.log("- ADMIN_EMAIL:", process.env.ADMIN_EMAIL);
-    console.log("- SMTP_ENABLED:", !!process.env.SMTP_HOST);
 
     const order = new Order({
       userId: req.body.userId,
@@ -143,35 +211,9 @@ router.post("/", async (req, res) => {
     if (order.items && Array.isArray(order.items)) {
       const Product = require("../models/Product");
       for (const item of order.items) {
-        const product = await Product.findById(item.productId);
-        if (product) {
-          // If product has size-based stock, decrement the specific size
-          if (
-            item.size &&
-            product.sizeStock &&
-            product.sizeStock.has(item.size)
-          ) {
-            const currentSizeStock = product.sizeStock.get(item.size) || 0;
-            if (currentSizeStock >= item.quantity) {
-              product.sizeStock.set(
-                item.size,
-                currentSizeStock - item.quantity
-              );
-              await product.save();
-            } else {
-              throw new Error(`Insufficient stock for size ${item.size}`);
-            }
-          } else {
-            // Fallback to general stock for backward compatibility
-            if (product.stock >= item.quantity) {
-              await Product.findByIdAndUpdate(item.productId, {
-                $inc: { stock: -item.quantity },
-              });
-            } else {
-              throw new Error("Insufficient stock");
-            }
-          }
-        }
+        await Product.findByIdAndUpdate(item.productId, {
+          $inc: { stock: -item.quantity },
+        });
       }
     }
 
@@ -179,12 +221,12 @@ router.post("/", async (req, res) => {
     try {
       console.log("=== EMAIL NOTIFICATION DEBUG ===");
       console.log("Order ID:", order._id);
-      console.log("Customer email:", req.body.email);
+      console.log("Customer email:", req.body.contact);
 
       const customerInfo = {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        email: req.body.contact, // Use the same email field as the order
+        email: req.body.email, // Use the original email from request
         phone: req.body.phone,
         address: req.body.address,
         city: req.body.city,
