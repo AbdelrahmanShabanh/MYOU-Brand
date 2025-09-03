@@ -140,7 +140,7 @@ const CollectionGrid = () => {
       </div>
 
       {/* Collections Section */}
-      <h2 className="mb-12 text-3xl font-bold text-center text-gray-900 dark:text-white">
+      <h2 className="mb-12 text-3xl font-bold text-center text-gray-900">
         Our Collections
       </h2>
       <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -154,7 +154,7 @@ const CollectionGrid = () => {
               key={category._id}
               href={`/collections/${createSlug(category.name)}`}
               className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl 
-                     transition-shadow duration-300 aspect-[3/4] bg-white dark:bg-gray-800"
+                     transition-shadow duration-300 aspect-[3/4] bg-white"
             >
               <Image
                 src={category.image || "/placeholder-category.jpg"}

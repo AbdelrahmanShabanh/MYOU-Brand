@@ -124,10 +124,10 @@ export default function ProductDetailClient({
           {/* Product Info */}
           <div className="space-y-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-3xl font-bold text-gray-900">
                 {product.name}
               </h1>
-              <p className="mt-2 text-2xl font-semibold text-pink-600 dark:text-pink-500">
+              <p className="mt-2 text-2xl font-semibold text-pink-600">
                 LE {product.price?.toFixed(2)}
               </p>
             </div>
@@ -135,12 +135,10 @@ export default function ProductDetailClient({
             {/* Size Selection */}
             <div>
               <div className="flex justify-between items-center mb-3">
-                <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-                  Size
-                </h3>
+                <h3 className="text-sm font-medium text-gray-900">Size</h3>
                 <button
                   onClick={() => setShowSizeChart(true)}
-                  className="flex gap-2 items-center px-4 py-2 text-sm font-medium text-pink-600 bg-pink-100 rounded-full transition-colors duration-300 hover:bg-pink-200 dark:bg-pink-900/30 dark:hover:bg-pink-900/50 dark:text-pink-400"
+                  className="flex gap-2 items-center px-4 py-2 text-sm font-medium text-pink-600 bg-pink-100 rounded-full transition-colors duration-300 hover:bg-pink-200"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -170,8 +168,8 @@ export default function ProductDetailClient({
                     className={`py-2 px-4 text-sm font-medium rounded-full border 
                       ${
                         selectedSize === size.value
-                          ? "border-pink-600 bg-pink-50 text-pink-600 dark:bg-pink-900/20 dark:text-pink-500"
-                          : "border-gray-200 text-gray-900 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                          ? "border-pink-600 bg-pink-50 text-pink-600"
+                          : "border-gray-200 text-gray-900 hover:bg-gray-50"
                       }`}
                   >
                     {size.label}
@@ -179,15 +177,15 @@ export default function ProductDetailClient({
                 ))}
               </div>
               {sizeError && (
-                <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                <p className="mt-2 text-sm text-red-600">
                   Please select a size before proceeding
                 </p>
               )}
             </div>
 
             {/* Features */}
-            <div className="py-4 border-t border-b dark:border-gray-700">
-              <h3 className="mb-3 text-sm font-medium text-gray-900 dark:text-white">
+            <div className="py-4 border-t border-b border-gray-200">
+              <h3 className="mb-3 text-sm font-medium text-gray-900">
                 Features
               </h3>
               <ul className="space-y-2">
@@ -195,10 +193,7 @@ export default function ProductDetailClient({
                   ? product.features
                   : fallbackFeatures
                 ).map((feature: string, index: number) => (
-                  <li
-                    key={index}
-                    className="flex items-center text-gray-600 dark:text-gray-400"
-                  >
+                  <li key={index} className="flex items-center text-gray-600">
                     <span className="mr-2 w-2 h-2 bg-pink-600 rounded-full" />
                     {feature}
                   </li>
@@ -207,7 +202,7 @@ export default function ProductDetailClient({
             </div>
 
             {/* Shipping Info */}
-            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex items-center text-sm text-gray-600">
               <FiTruck className="mr-2" />
               <span>
                 {product.shippingInfo && product.shippingInfo.trim() !== ""
@@ -218,10 +213,10 @@ export default function ProductDetailClient({
 
             {/* Description */}
             <div>
-              <h3 className="mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              <h3 className="mb-2 text-sm font-medium text-gray-900">
                 Description
               </h3>
-              <p className="text-gray-600 whitespace-pre-line dark:text-gray-400">
+              <p className="text-gray-600 whitespace-pre-line">
                 {product.description}
               </p>
             </div>
@@ -239,7 +234,7 @@ export default function ProductDetailClient({
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={handleBuyNow}
-                className="px-4 py-3 w-full font-medium text-pink-600 rounded-full border border-pink-600 transition-colors duration-300 hover:bg-pink-50 dark:text-pink-500 dark:hover:bg-pink-900/20"
+                className="px-4 py-3 w-full font-medium text-pink-600 rounded-full border border-pink-600 transition-colors duration-300 hover:bg-pink-50"
               >
                 Buy Now
               </motion.button>
@@ -256,15 +251,15 @@ export default function ProductDetailClient({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative p-6 mx-4 w-full max-w-sm bg-white rounded-lg dark:bg-gray-800"
+              className="relative p-6 mx-4 w-full max-w-sm bg-white rounded-lg"
             >
               <button
                 onClick={() => setShowSizeChart(false)}
-                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
               >
                 <FiX size={24} />
               </button>
-              <h2 className="mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
+              <h2 className="mb-6 text-2xl font-semibold text-gray-900">
                 Size Guide
               </h2>
               <div className="relative w-[300px] h-[300px] mx-auto">
@@ -277,7 +272,7 @@ export default function ProductDetailClient({
                   sizes="100px"
                 />
               </div>
-              <p className="mt-6 text-sm text-gray-600 dark:text-gray-400">
+              <p className="mt-6 text-sm text-gray-600">
                 For the best fit, please measure yourself and compare with the
                 size chart above. If you&apos;re between sizes, we recommend
                 choosing the larger size.
@@ -288,19 +283,19 @@ export default function ProductDetailClient({
       </AnimatePresence>
 
       {/* You May Also Like Section */}
-      <div className="pt-12 mt-24 border-t border-gray-200 dark:border-gray-700">
-        <h2 className="mb-8 text-2xl font-bold text-center text-gray-900 dark:text-white">
+      <div className="pt-12 mt-24 border-t border-gray-200">
+        <h2 className="mb-8 text-2xl font-bold text-center text-gray-900">
           You May Also Like
         </h2>
         {randomProductsLoading ? (
           <div className="flex justify-center items-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600"></div>
-            <span className="ml-3 text-gray-600 dark:text-gray-400">
+            <span className="ml-3 text-gray-600">
               Loading recommendations...
             </span>
           </div>
         ) : randomProductsError ? (
-          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-12 text-gray-500">
             <p>Unable to load recommendations at the moment.</p>
             <p className="text-sm mt-2">Please try again later.</p>
           </div>
@@ -323,7 +318,7 @@ export default function ProductDetailClient({
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-12 text-gray-500">
             <p>No recommendations available at the moment.</p>
             <p className="text-sm mt-2">Check back later for new products!</p>
           </div>
