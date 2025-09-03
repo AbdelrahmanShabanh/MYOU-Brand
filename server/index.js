@@ -116,9 +116,10 @@ app.use("/api/hero-slider", heroSliderRoutes);
 app.get("/", (req, res) => {
   res.status(200).json({
     status: "OK",
-    message: "API is running - CORS FIXED - Updated: " + new Date().toISOString(),
+    message:
+      "API is running - CORS FIXED - Updated: " + new Date().toISOString(),
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || "development"
+    environment: process.env.NODE_ENV || "development",
   });
 });
 
@@ -127,7 +128,7 @@ app.get("/health", (req, res) => {
   res.status(200).json({
     status: "healthy",
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
   });
 });
 

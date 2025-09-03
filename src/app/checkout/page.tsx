@@ -326,7 +326,6 @@ export default function CheckoutPage() {
         <div
           className="flex fixed inset-0 z-[9999] justify-center items-center bg-black bg-opacity-50"
           style={{ animation: "fadeIn 0.3s ease-in-out" }}
-          onClick={() => router.push("/")}
         >
           <div
             className="relative p-8 mx-4 max-w-md text-center bg-white rounded-lg shadow-xl animate-scaleIn"

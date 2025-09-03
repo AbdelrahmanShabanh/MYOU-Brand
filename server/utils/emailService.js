@@ -10,18 +10,70 @@ class EmailService {
       adminEmail: process.env.ADMIN_EMAIL,
     });
 
-    this.transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER || "your-email@gmail.com",
-        pass: process.env.EMAIL_PASSWORD || "your-app-password",
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-      secure: true,
-      port: 465,
-    });
+    // Try multiple connection methods for Railway
+    try {
+      // Method 1: Standard Gmail with extended timeouts
+      this.transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL_USER || "your-email@gmail.com",
+          pass: process.env.EMAIL_PASSWORD || "your-app-password",
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+        secure: true,
+        port: 465,
+        // Railway-specific connection settings
+        connectionTimeout: 60000, // 60 seconds
+        greetingTimeout: 30000,   // 30 seconds
+        socketTimeout: 60000,     // 60 seconds
+        // Alternative connection method
+        pool: false,
+        maxConnections: 1,
+        maxMessages: 1,
+      });
+
+      // Test the connection
+      this.transporter.verify((error) => {
+        if (error) {
+          console.log("❌ Primary email transport failed:", error.message);
+          this.createFallbackTransporter();
+        } else {
+          console.log("✅ Primary email transport ready");
+        }
+      });
+    } catch (error) {
+      console.log("❌ Error creating primary transport:", error.message);
+      this.createFallbackTransporter();
+    }
+  }
+
+  createFallbackTransporter() {
+    console.log("🔄 Creating fallback email transport...");
+    try {
+      // Method 2: Alternative Gmail settings
+      this.transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+          user: process.env.EMAIL_USER || "your-email@gmail.com",
+          pass: process.env.EMAIL_PASSWORD || "your-app-password",
+        },
+        tls: {
+          rejectUnauthorized: false,
+          ciphers: "SSLv3",
+        },
+        connectionTimeout: 30000,
+        greetingTimeout: 15000,
+        socketTimeout: 30000,
+      });
+      console.log("✅ Fallback email transport created");
+    } catch (error) {
+      console.log("❌ Fallback transport also failed:", error.message);
+      this.transporter = null;
+    }
   }
 
   // إرسال تأكيد الطلب عبر البريد الإلكتروني
