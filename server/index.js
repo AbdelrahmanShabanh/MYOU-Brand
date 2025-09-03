@@ -23,14 +23,29 @@ const PORT = process.env.PORT || 5000;
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "http://localhost:3001",
-      "https://the-myou-brand.vercel.app",
-      "https://the-myou-brand-dcognewdc-abdelrahmanshabans-projects.vercel.app",
-      "https://vercel.app",
-      "https://*.vercel.app",
-    ],
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      const allowedOrigins = [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "https://the-myou-brand.vercel.app",
+        "https://vercel.app",
+      ];
+
+      // Allow any Vercel preview domain
+      if (origin.includes("vercel.app") || origin.includes("railway.app")) {
+        return callback(null, true);
+      }
+
+      // Check if origin is in allowed list
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        return callback(null, true);
+      }
+
+      callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   })
 );
