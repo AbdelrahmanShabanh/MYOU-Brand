@@ -5,10 +5,16 @@ class EmailService {
   constructor() {
     // Create Resend client
     this.resend = new Resend(process.env.RESEND_API_KEY);
-    
+
     console.log("=== RESEND EMAIL SERVICE INITIALIZED ===");
-    console.log("Resend API Key:", process.env.RESEND_API_KEY ? "SET" : "NOT SET");
-    console.log("From Email:", process.env.FROM_EMAIL || "noreply@yourdomain.com");
+    console.log(
+      "Resend API Key:",
+      process.env.RESEND_API_KEY ? "SET" : "NOT SET"
+    );
+    console.log(
+      "From Email:",
+      process.env.FROM_EMAIL || "noreply@yourdomain.com"
+    );
     console.log("Admin Email:", process.env.ADMIN_EMAIL);
     console.log("========================================");
   }
@@ -106,6 +112,24 @@ class EmailService {
               </div>
               
               <div style="text-align: center; margin-top: 30px; padding: 20px; background: #f0f0f0; border-radius: 8px;">
+                <a href="${
+                  process.env.FRONTEND_URL ||
+                  "https://the-myou-brand.vercel.app"
+                }/track-order" 
+                   style="background: #ec4899; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; display: inline-block; margin: 10px; font-weight: bold;">
+                  📦 Track Your Order
+                </a>
+                <br>
+                <a href="${
+                  process.env.FRONTEND_URL ||
+                  "https://the-myou-brand.vercel.app"
+                }" 
+                   style="background: #333; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; display: inline-block; margin: 10px; font-weight: bold;">
+                  🛍️ Continue Shopping
+                </a>
+              </div>
+              
+              <div style="text-align: center; margin-top: 20px; padding: 20px; background: #f0f0f0; border-radius: 8px;">
                 <p style="margin: 0; color: #666;">Thank you for choosing MYOU Store!</p>
                 <p style="margin: 5px 0 0 0; color: #666;">We appreciate your business.</p>
               </div>
@@ -124,7 +148,10 @@ class EmailService {
       console.log("Email sent to:", customerInfo.email);
       return data;
     } catch (error) {
-      console.error("❌ ERROR sending order confirmation email:", error.message);
+      console.error(
+        "❌ ERROR sending order confirmation email:",
+        error.message
+      );
       console.error("Error details:", {
         message: error.message,
         stack: error.stack,
@@ -137,7 +164,7 @@ class EmailService {
   async sendAdminNotification(order, customerInfo) {
     try {
       console.log("Sending admin notification via Resend...");
-      
+
       const itemsList = order.items
         .map(
           (item) =>
@@ -172,10 +199,14 @@ class EmailService {
                 <p><strong>Order Date:</strong> ${new Date(
                   order.createdAt
                 ).toLocaleDateString()}</p>
-                <p><strong>Customer:</strong> ${customerInfo.firstName} ${customerInfo.lastName}</p>
+                <p><strong>Customer:</strong> ${customerInfo.firstName} ${
+          customerInfo.lastName
+        }</p>
                 <p><strong>Email:</strong> ${customerInfo.email}</p>
                 <p><strong>Phone:</strong> ${customerInfo.phone}</p>
-                <p><strong>Total Amount:</strong> LE ${order.total?.toFixed(2)}</p>
+                <p><strong>Total Amount:</strong> LE ${order.total?.toFixed(
+                  2
+                )}</p>
               </div>
               
               <div style="background: white; padding: 15px; margin: 20px 0; border-radius: 8px;">
@@ -193,9 +224,25 @@ class EmailService {
                 <p>Phone: ${customerInfo.phone}</p>
               </div>
               
-              <div style="text-align: center; margin-top: 30px; padding: 20px; background: #f0f0f0; border-radius: 8px;">
-                <p style="margin: 0; color: #666;">Please process this order as soon as possible.</p>
-              </div>
+                             <div style="text-align: center; margin-top: 30px; padding: 20px; background: #f0f0f0; border-radius: 8px;">
+                 <a href="${
+                   process.env.FRONTEND_URL ||
+                   "https://the-myou-brand.vercel.app"
+                 }/admin/orders" 
+                    style="background: #ec4899; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; display: inline-block; margin: 10px; font-weight: bold;">
+                   📋 View Order in Admin Panel
+                 </a>
+                 <br>
+                 <a href="${
+                   process.env.FRONTEND_URL ||
+                   "https://the-myou-brand.vercel.app"
+                 }/admin" 
+                    style="background: #333; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; display: inline-block; margin: 10px; font-weight: bold;">
+                   🏠 Go to Admin Dashboard
+                 </a>
+                 <br>
+                 <p style="margin: 20px 0 0 0; color: #666;">Please process this order as soon as possible.</p>
+               </div>
             </div>
           </div>
         `,
@@ -211,7 +258,10 @@ class EmailService {
       console.log("Admin email sent to:", process.env.ADMIN_EMAIL);
       return data;
     } catch (error) {
-      console.error("❌ ERROR sending admin notification email:", error.message);
+      console.error(
+        "❌ ERROR sending admin notification email:",
+        error.message
+      );
       console.error("Error details:", {
         message: error.message,
         stack: error.stack,
