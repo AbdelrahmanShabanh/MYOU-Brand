@@ -27,7 +27,7 @@ const CollectionGrid = () => {
         id="collections"
         className="px-4 py-16 mx-auto max-w-7xl bg-white sm:px-6 lg:px-8"
       >
-        <h2 className="mb-12 text-3xl font-bold text-center text-gray-900">
+        <h2 className="mb-12 text-3xl font-bold text-center text-gray-900 px-4">
           Our Collections
         </h2>
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -45,7 +45,7 @@ const CollectionGrid = () => {
         id="collections"
         className="px-4 py-16 mx-auto max-w-7xl bg-white sm:px-6 lg:px-8"
       >
-        <h2 className="mb-12 text-3xl font-bold text-center text-gray-900">
+        <h2 className="mb-12 text-3xl font-bold text-center text-gray-900 px-4">
           Our Collections
         </h2>
         <div className="text-center text-red-600">
@@ -62,7 +62,7 @@ const CollectionGrid = () => {
     >
       {/* Best Sellers Section */}
       <div className="mb-16">
-        <h2 className="mb-12 text-3xl font-bold text-center text-gray-900">
+        <h2 className="mb-12 text-3xl font-bold text-center text-gray-900 px-4">
           Best Sellers
         </h2>
 

@@ -208,7 +208,7 @@ const ProductCard = ({
       {/* Size Selection */}
       {sizes && sizes.length > 0 && !soldOut && (
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block mb-2 text-sm font-medium text-gray-700">
             Select Size
           </label>
           <div className="grid grid-cols-4 gap-2">
@@ -220,7 +220,7 @@ const ProductCard = ({
                   ${
                     selectedSize === size
                       ? "bg-pink-600 text-white border-pink-600"
-                      : "bg-white text-gray-700 border-gray-300 hover:border-pink-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600"
+                      : "bg-white text-gray-700 border-gray-300 hover:border-pink-300"
                   }`}
               >
                 {size}
@@ -254,12 +254,12 @@ const ProductCard = ({
           onClick={handleViewDetails}
           disabled={soldOut}
           className={`w-full px-4 py-3 text-sm font-medium rounded-full border 
-                   ${
-                     soldOut
-                       ? "text-gray-400 border-gray-300 cursor-not-allowed"
-                       : "text-pink-600 border-pink-600 hover:bg-pink-50 dark:hover:bg-pink-900/20"
-                   } 
-                   whitespace-nowrap`}
+                                        ${
+                       soldOut
+                         ? "text-gray-400 border-gray-300 cursor-not-allowed"
+                         : "text-pink-600 border-pink-600 hover:bg-pink-50"
+                     } 
+                     whitespace-nowrap`}
         >
           {soldOut ? "Sold Out" : "View Details"}
         </motion.button>

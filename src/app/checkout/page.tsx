@@ -259,9 +259,12 @@ export default function CheckoutPage() {
         return;
       }
 
+      // Get the order data to confirm it was created
+      const orderData = await res.json();
+      console.log("Order created successfully:", orderData);
+      console.log("Order ID:", orderData._id);
+
       console.log("Order successful! Setting showSuccess to true");
-      setShowSuccess(true);
-      console.log("showSuccess state:", true);
 
       // Clear cart after successful order (for both guest and authenticated users)
       if (user && user.id) {
@@ -272,10 +275,20 @@ export default function CheckoutPage() {
       // Clear local cart state for all users
       dispatch(clearCart());
 
-      // Redirect after 3 seconds
+      // Show success modal FIRST
+      setShowSuccess(true);
+      console.log("showSuccess state:", true);
+
+      // Wait a bit before setting up redirect to ensure modal is visible
       setTimeout(() => {
-        router.push("/");
-      }, 3000);
+        // Redirect after 8 seconds to give users time to see the success message
+        setTimeout(() => {
+          if (showSuccess) {
+            // Only redirect if modal is still open
+            router.push("/");
+          }
+        }, 8000);
+      }, 100);
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error ? err.message : "An error occurred";
@@ -351,14 +364,22 @@ export default function CheckoutPage() {
             </p>
             <div className="flex justify-center items-center mb-4 space-x-2 text-sm text-gray-500">
               <div className="w-4 h-4 rounded-full border-b-2 border-pink-600 animate-spin"></div>
-              <span>Redirecting to home page...</span>
+              <span>Redirecting to home page in 8 seconds...</span>
             </div>
-            <button
-              onClick={() => router.push("/")}
-              className="px-4 py-2 w-full text-white bg-pink-600 rounded-md transition-colors hover:bg-pink-700"
-            >
-              Go to Home Page Now
-            </button>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => router.push("/")}
+                className="flex-1 px-4 py-2 text-white bg-pink-600 rounded-md transition-colors hover:bg-pink-700"
+              >
+                Go to Home Page Now
+              </button>
+              <button
+                onClick={() => setShowSuccess(false)}
+                className="flex-1 px-4 py-2 text-gray-700 bg-gray-200 rounded-md transition-colors hover:bg-gray-300"
+              >
+                Stay Here
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -370,13 +391,13 @@ export default function CheckoutPage() {
           onClick={() => setShowError(false)}
         >
           <div
-            className="relative p-8 mx-4 max-w-md text-center bg-white rounded-lg shadow-xl dark:bg-gray-800 animate-scaleIn"
+            className="relative p-8 mx-4 max-w-md text-center bg-white rounded-lg shadow-xl animate-scaleIn"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
             <button
               onClick={() => setShowError(false)}
-              className="absolute top-4 right-4 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-300"
+              className="absolute top-4 right-4 text-gray-400 transition-colors hover:text-gray-600"
             >
               <svg
                 className="w-6 h-6"
@@ -765,8 +786,8 @@ export default function CheckoutPage() {
           </form>
 
           {/* Right: Order Summary */}
-          <div className="p-6 bg-white rounded-lg shadow-lg dark:bg-gray-800 lg:sticky lg:top-8">
-            <h2 className="mb-6 text-xl font-semibold text-gray-900 dark:text-white">
+          <div className="p-6 bg-white rounded-lg shadow-lg lg:sticky lg:top-8">
+            <h2 className="mb-6 text-xl font-semibold text-gray-900">
               Order Summary
             </h2>
             <div className="mb-6 space-y-4">
@@ -781,14 +802,14 @@ export default function CheckoutPage() {
                     />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                    <h3 className="text-sm font-medium text-gray-900">
                       {item.name}
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm text-gray-500">
                       Qty: {item.quantity} {item.size && `• Size: ${item.size}`}
                     </p>
                   </div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  <p className="text-sm font-medium text-gray-900">
                     LE {(item.price * item.quantity).toFixed(2)}
                   </p>
                 </div>
@@ -801,11 +822,11 @@ export default function CheckoutPage() {
                 placeholder="Discount code or gift card"
                 value={coupon}
                 onChange={(e) => setCoupon(e.target.value)}
-                className="flex-1 px-3 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-700 dark:text-white"
+                className="flex-1 px-3 py-2 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500"
               />
               <button
                 type="submit"
-                className="px-4 font-medium text-gray-700 bg-gray-200 rounded-r-md transition-colors dark:bg-gray-700 dark:text-white hover:bg-pink-600 hover:text-white"
+                className="px-4 font-medium text-gray-700 bg-gray-200 rounded-r-md transition-colors hover:bg-pink-600 hover:text-white"
               >
                 Apply
               </button>
@@ -813,38 +834,28 @@ export default function CheckoutPage() {
 
             {/* Coupon Error Message */}
             {couponError && (
-              <div className="mb-2 text-sm text-red-600 dark:text-red-400">
-                {couponError}
-              </div>
+              <div className="mb-2 text-sm text-red-600">{couponError}</div>
             )}
 
             {/* Coupon Success Message */}
             {couponSuccess && (
-              <div className="mb-2 text-sm text-green-600 dark:text-green-400">
-                {couponSuccess}
-              </div>
+              <div className="mb-2 text-sm text-green-600">{couponSuccess}</div>
             )}
 
             {appliedCoupon && (
-              <div className="flex items-center mb-2 text-sm text-green-600 dark:text-green-400">
+              <div className="flex items-center mb-2 text-sm text-green-600">
                 <FiGift className="mr-1" /> Coupon{" "}
                 <b className="mx-1">{appliedCoupon}</b> applied!
               </div>
             )}
-            <div className="pt-4 space-y-2 border-t border-gray-200 dark:border-gray-700">
+            <div className="pt-4 space-y-2 border-t border-gray-200">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600 dark:text-gray-400">
-                  Subtotal
-                </span>
-                <span className="text-gray-900 dark:text-white">
-                  LE {subtotal.toFixed(2)}
-                </span>
+                <span className="text-gray-600">Subtotal</span>
+                <span className="text-gray-900">LE {subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600 dark:text-gray-400">
-                  Shipping
-                </span>
-                <span className="text-lg font-bold text-gray-900 dark:text-white">
+                <span className="text-gray-600">Shipping</span>
+                <span className="text-lg font-bold text-gray-900">
                   LE {shipping.toFixed(2)}
                 </span>
               </div>

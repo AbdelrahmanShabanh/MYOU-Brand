@@ -97,7 +97,7 @@ export default async function Page({
 
       {products.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-gray-500">
             No products found in this collection.
           </p>
         </div>
