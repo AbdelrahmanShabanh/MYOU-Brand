@@ -129,6 +129,19 @@ app.get("/health", (req, res) => {
     status: "healthy",
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
+    environment: process.env.NODE_ENV || "development",
+    port: PORT,
+    mongodb: process.env.MONGODB_URI ? "configured" : "not configured",
+  });
+});
+
+// Simple test endpoint for debugging
+app.get("/test", (req, res) => {
+  res.status(200).json({
+    message: "Server is responding!",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    env: process.env.NODE_ENV || "development",
   });
 });
 
