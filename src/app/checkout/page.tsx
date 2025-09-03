@@ -215,7 +215,26 @@ export default function CheckoutPage() {
       }));
 
       // Allow guest checkout: userId is optional
-      const orderBody: any = {
+      const orderBody: {
+        items: typeof items;
+        contact: string;
+        email: string;
+        phone: string;
+        country: string;
+        firstName: string;
+        lastName: string;
+        address: string;
+        city: string;
+        postalCode: string;
+        shippingMethod: string;
+        paymentMethod: string;
+        coupon: string;
+        discount: number;
+        subtotal: number;
+        shipping: number;
+        total: number;
+        userId?: string;
+      } = {
         items,
         contact: email, // Send email as contact
         email: email, // Also send as email for backend
@@ -296,11 +315,11 @@ export default function CheckoutPage() {
       // Wait for modal to be visible before setting up redirect
       setTimeout(() => {
         console.log("Modal should be visible now, setting up redirect");
-        // Redirect after 8 seconds to give users time to see the success message
+        // Redirect after 10 seconds to give users time to see the success message
         setTimeout(() => {
           console.log("Redirecting to home page");
           router.push("/");
-        }, 8000);
+        }, 10000);
       }, 500);
     } catch (err: unknown) {
       const errorMessage =
@@ -379,26 +398,37 @@ export default function CheckoutPage() {
               Order Submitted Successfully!
             </h3>
             <p className="mb-4 text-gray-600">
-              You will receive a confirmation email shortly. Thank you for
-              choosing MYOU!
+              We have sent a confirmation email to your inbox. 
+              <span className="font-semibold text-pink-600"> Please check your spam emails</span> if you don&apos;t see it in your main inbox.
+            </p>
+            <p className="mb-4 text-sm text-gray-500">
+              Thank you for choosing MYOU!
             </p>
             <div className="flex justify-center items-center mb-4 space-x-2 text-sm text-gray-500">
               <div className="w-4 h-4 rounded-full border-b-2 border-pink-600 animate-spin"></div>
-              <span>Redirecting to home page in 8 seconds...</span>
+              <span>Redirecting to home page in 10 seconds...</span>
             </div>
-            <div className="flex space-x-3">
-              <button
-                onClick={() => router.push("/")}
-                className="flex-1 px-4 py-2 text-white bg-pink-600 rounded-md transition-colors hover:bg-pink-700"
-              >
-                Go to Home Page Now
-              </button>
+            <div className="flex flex-col space-y-3">
               <button
                 onClick={() => setShowSuccess(false)}
-                className="flex-1 px-4 py-2 text-gray-700 bg-gray-200 rounded-md transition-colors hover:bg-gray-300"
+                className="w-full px-4 py-2 text-white bg-pink-600 rounded-md transition-colors hover:bg-pink-700 font-medium"
               >
-                Stay Here
+                OK
               </button>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => router.push("/")}
+                  className="flex-1 px-4 py-2 text-gray-700 bg-gray-200 rounded-md transition-colors hover:bg-gray-300"
+                >
+                  Go to Home Page Now
+                </button>
+                <button
+                  onClick={() => setShowSuccess(false)}
+                  className="flex-1 px-4 py-2 text-gray-700 bg-gray-200 rounded-md transition-colors hover:bg-gray-300"
+                >
+                  Stay Here
+                </button>
+              </div>
             </div>
           </div>
         </div>
