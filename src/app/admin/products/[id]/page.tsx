@@ -40,34 +40,61 @@ export default function EditProductPage({ params }: PageProps) {
       setLoading(true);
       setError(null);
       try {
+        console.log("🔄 Fetching product data for ID:", resolvedParams.id);
         const token = localStorage.getItem("token");
-        const res = await fetch(
-          `${
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
-          }/api/products/${resolvedParams.id}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        if (!res.ok) throw new Error("Failed to fetch product");
+        const apiUrl =
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        const url = `${apiUrl}/api/products/${resolvedParams.id}`;
+
+        console.log("📡 API URL:", url);
+
+        const res = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Cache-Control": "no-cache",
+            Pragma: "no-cache",
+          },
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error("❌ API Error:", res.status, errorText);
+          throw new Error(
+            `Failed to fetch product: ${res.status} ${errorText}`
+          );
+        }
+
         const product = await res.json();
-        setFormData({
-          name: product.name,
-          description: product.description,
-          price: product.price.toString(),
-          image: product.image,
-          category: product.category,
-          stock: product.stock.toString(),
+        console.log("✅ Product data received:", product);
+
+        // Reset form data with fresh product data
+        const freshFormData = {
+          name: product.name || "",
+          description: product.description || "",
+          price: product.price ? product.price.toString() : "",
+          image: product.image || "",
+          category: product.category || "",
+          stock: product.stock ? product.stock.toString() : "",
           discount: product.discount ? product.discount.toString() : "",
           featured: !!product.featured,
-        });
+        };
+
+        console.log("🔄 Setting form data:", freshFormData);
+        setFormData(freshFormData);
+
+        // Clear any previous errors
+        setErrors({});
       } catch (err: any) {
-        setError(err.message);
+        console.error("❌ Error fetching product:", err);
+        setError(err.message || "Failed to fetch product data");
       } finally {
         setLoading(false);
       }
     }
-    fetchProduct();
+
+    if (resolvedParams.id) {
+      fetchProduct();
+    }
   }, [resolvedParams.id]);
 
   const handleChange = (
@@ -132,35 +159,73 @@ export default function EditProductPage({ params }: PageProps) {
     setLoading(true);
     setError(null);
     try {
+      console.log("🔄 Submitting updated product data:", formData);
       const token = localStorage.getItem("token");
-      const res = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
-        }/api/products/${resolvedParams.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            name: formData.name,
-            description: formData.description,
-            price: Number(formData.price),
-            image: formData.image || "/images/products/placeholder.jpg",
-            category: formData.category,
-            stock: Number(formData.stock),
-            discount: formData.discount ? Number(formData.discount) : 0,
-            featured: formData.featured,
-          }),
-        }
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      const url = `${apiUrl}/api/products/${resolvedParams.id}`;
+
+      const updateData = {
+        name: formData.name,
+        description: formData.description,
+        price: Number(formData.price),
+        image: formData.image || "/images/products/placeholder.jpg",
+        category: formData.category,
+        stock: Number(formData.stock),
+        discount: formData.discount ? Number(formData.discount) : 0,
+        featured: formData.featured,
+      };
+
+      console.log("📡 Sending update to:", url);
+      console.log("📦 Update data:", updateData);
+
+      const res = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("❌ Update failed:", res.status, errorText);
+        throw new Error(`Failed to update product: ${res.status} ${errorText}`);
+      }
+
+      const updatedProduct = await res.json();
+      console.log("✅ Product updated successfully:", updatedProduct);
+
+      // Update Redux store with fresh data
+      dispatch(
+        updateProduct({
+          id: updatedProduct._id,
+          name: updatedProduct.name,
+          description: updatedProduct.description,
+          price: updatedProduct.price,
+          image: updatedProduct.image,
+          category: updatedProduct.category,
+          stock: updatedProduct.stock,
+        })
       );
-      if (!res.ok) throw new Error("Failed to update product");
+
+      // Redirect to products list
       router.push("/admin/products");
     } catch (err: any) {
-      setError(err.message);
+      console.error("❌ Error updating product:", err);
+      setError(err.message || "Failed to update product");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Add refresh function to manually refetch product data
+  const handleRefresh = () => {
+    if (resolvedParams.id) {
+      setLoading(true);
+      setError(null);
+      // Force refetch by calling the effect again
+      window.location.reload();
     }
   };
 
@@ -199,25 +264,23 @@ export default function EditProductPage({ params }: PageProps) {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-          Edit Product
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-800">Edit Product</h1>
         <Link
           href="/admin/products"
-          className="flex items-center px-4 py-2 text-gray-800 bg-gray-200 rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white"
+          className="flex items-center px-4 py-2 text-gray-800 bg-gray-200 rounded-md hover:bg-gray-300"
         >
           <FiX className="mr-2" />
           Cancel
         </Link>
       </div>
 
-      <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-800">
+      <div className="p-6 bg-white rounded-lg shadow">
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
               <label
                 htmlFor="name"
-                className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="block mb-1 text-sm font-medium text-gray-700"
               >
                 Product Name *
               </label>
@@ -243,7 +306,7 @@ export default function EditProductPage({ params }: PageProps) {
             <div>
               <label
                 htmlFor="category"
-                className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="block mb-1 text-sm font-medium text-gray-700"
               >
                 Category *
               </label>
@@ -276,7 +339,7 @@ export default function EditProductPage({ params }: PageProps) {
             <div>
               <label
                 htmlFor="price"
-                className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="block mb-1 text-sm font-medium text-gray-700"
               >
                 Price ($) *
               </label>
@@ -304,7 +367,7 @@ export default function EditProductPage({ params }: PageProps) {
             <div>
               <label
                 htmlFor="stock"
-                className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="block mb-1 text-sm font-medium text-gray-700"
               >
                 Stock *
               </label>
@@ -331,7 +394,7 @@ export default function EditProductPage({ params }: PageProps) {
             <div>
               <label
                 htmlFor="discount"
-                className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="block mb-1 text-sm font-medium text-gray-700"
               >
                 Discount (%)
               </label>
@@ -356,10 +419,7 @@ export default function EditProductPage({ params }: PageProps) {
                 onChange={handleChange}
                 className="mr-2"
               />
-              <label
-                htmlFor="featured"
-                className="text-sm text-gray-700 dark:text-gray-300"
-              >
+              <label htmlFor="featured" className="text-sm text-gray-700">
                 Featured Product
               </label>
             </div>
@@ -425,6 +485,13 @@ export default function EditProductPage({ params }: PageProps) {
             >
               <FiSave className="mr-2" />
               Save Changes
+            </button>
+            <button
+              type="button"
+              onClick={handleRefresh}
+              className="ml-2 flex items-center px-4 py-2 text-gray-800 bg-gray-200 rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white"
+            >
+              Refresh
             </button>
           </div>
         </form>
