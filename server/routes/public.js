@@ -98,10 +98,10 @@ router.post("/", async (req, res) => {
     console.log("Request body:", req.body);
     console.log("Email from request:", req.body.email);
     console.log("Contact from request:", req.body.contact);
-    
+
     const Order = require("../models/Order");
     const emailService = require("../utils/emailService");
-    
+
     // Test email service import
     console.log("Email service imported:", !!emailService);
     console.log("Email service methods:", Object.keys(emailService));
@@ -162,8 +162,11 @@ router.post("/", async (req, res) => {
       // Send email confirmation to customer
       console.log("Sending customer confirmation email...");
       console.log("Email service object:", emailService);
-      console.log("sendOrderConfirmation method:", typeof emailService.sendOrderConfirmation);
-      
+      console.log(
+        "sendOrderConfirmation method:",
+        typeof emailService.sendOrderConfirmation
+      );
+
       try {
         await emailService.sendOrderConfirmation(order, customerInfo);
         console.log("✅ Customer confirmation email sent successfully");

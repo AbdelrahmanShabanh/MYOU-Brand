@@ -112,11 +112,23 @@ app.use("/api/upload", auth, admin, uploadRoutes); // Require admin for uploads
 app.use("/api/promocodes", promoCodesRoutes);
 app.use("/api/hero-slider", heroSliderRoutes);
 
-// Example route
+// Health check route for Railway
 app.get("/", (req, res) => {
-  res.send(
-    "API is running - CORS FIXED - Updated: " + new Date().toISOString()
-  );
+  res.status(200).json({
+    status: "OK",
+    message: "API is running - CORS FIXED - Updated: " + new Date().toISOString(),
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || "development"
+  });
+});
+
+// Health check endpoint specifically for Railway
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
 });
 
 // Start server with better error handling
@@ -131,9 +143,3 @@ app
     console.error("❌ Server failed to start:", error);
     process.exit(1);
   });
-
-// TODO: Add routes for auth, products, categories, orders, admin, upload
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
