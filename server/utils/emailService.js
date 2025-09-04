@@ -1,16 +1,12 @@
 const { Resend } = require("resend");
 const nodemailer = require("nodemailer");
+const sgMail = require("@sendgrid/mail");
 
 // خدمة إرسال البريد الإلكتروني باستخدام Resend
 class EmailService {
   constructor() {
-    // Only create Resend client if API key is provided
-    if (process.env.RESEND_API_KEY) {
-      this.resend = new Resend(process.env.RESEND_API_KEY);
-    } else {
-      this.resend = null;
-      console.log("⚠️ No RESEND_API_KEY provided, Resend disabled");
-    }
+    // Create Resend client
+    this.resend = new Resend(process.env.RESEND_API_KEY);
 
     // Initialize SMTP transporter if SMTP env vars are present
     this.smtpEnabled =
@@ -32,6 +28,12 @@ class EmailService {
       });
     }
 
+    // Initialize SendGrid if SENDGRID_API_KEY is present
+    this.sendgridEnabled = !!process.env.SENDGRID_API_KEY;
+    if (this.sendgridEnabled) {
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    }
+
     console.log("=== RESEND EMAIL SERVICE INITIALIZED ===");
     console.log(
       "Resend API Key:",
@@ -43,6 +45,7 @@ class EmailService {
     );
     console.log("Admin Email:", process.env.ADMIN_EMAIL);
     console.log("SMTP Enabled:", this.smtpEnabled ? "YES" : "NO");
+    console.log("SendGrid Enabled:", this.sendgridEnabled ? "YES" : "NO");
     console.log("========================================");
   }
 
@@ -50,52 +53,42 @@ class EmailService {
     if (!this.smtpEnabled || !this.transporter) {
       throw new Error("SMTP transporter is not configured");
     }
+    const fromEmail =
+      process.env.SMTP_FROM ||
+      process.env.FROM_EMAIL ||
+      "noreply@yourdomain.com";
+    const info = await this.transporter.sendMail({
+      from: fromEmail,
+      to,
+      subject,
+      html,
+    });
+    return info;
+  }
+
+  // Send email via SendGrid
+  async sendViaSendGrid(to, subject, html) {
+    if (!this.sendgridEnabled || !sgMail) {
+      throw new Error("SendGrid is not configured");
+    }
 
     try {
-      console.log("📧 Attempting SMTP connection...");
-      console.log("SMTP Host:", process.env.SMTP_HOST);
-      console.log("SMTP Port:", process.env.SMTP_PORT);
-      console.log("SMTP User:", process.env.SMTP_USER);
+      const msg = {
+        to: to,
+        from: process.env.SENDGRID_FROM_EMAIL || "noreply@sendgrid.net",
+        subject: subject,
+        html: html,
+      };
 
-      const fromEmail =
-        process.env.SMTP_FROM ||
-        process.env.FROM_EMAIL ||
-        "noreply@yourdomain.com";
-
-      const info = await this.transporter.sendMail({
-        from: fromEmail,
-        to,
-        subject,
-        html,
-      });
-
-      console.log("✅ SMTP email sent successfully");
-      return info;
+      const result = await sgMail.send(msg);
+      console.log("✅ SendGrid email sent successfully");
+      return result;
     } catch (error) {
-      console.error("❌ SMTP error details:", {
-        code: error.code,
-        command: error.command,
-        response: error.response,
-        responseCode: error.responseCode,
-        message: error.message,
-      });
-
-      // Provide helpful error messages for common issues
-      if (error.code === "ETIMEDOUT") {
-        throw new Error(
-          `SMTP connection timeout. This often happens on Railway. Try using a different email service like SendGrid or Outlook.`
-        );
-      } else if (error.code === "ECONNREFUSED") {
-        throw new Error(
-          `SMTP connection refused. Check if the port and host are correct.`
-        );
-      } else if (error.code === "EAUTH") {
-        throw new Error(
-          `SMTP authentication failed. Check your username and password.`
-        );
-      } else {
-        throw new Error(`SMTP failed: ${error.message}`);
+      console.error("❌ SendGrid error:", error);
+      if (error.response) {
+        console.error("SendGrid response body:", error.response.body);
       }
+      throw new Error(`SendGrid failed: ${error.message}`);
     }
   }
 
@@ -222,24 +215,12 @@ class EmailService {
           </div>
         `;
 
-      // Try Resend first, fallback to SMTP if available
-      if (!this.resend) {
-        console.log("📧 Resend not available, trying SMTP...");
-        if (this.smtpEnabled && this.transporter) {
-          const smtpResult = await this.sendViaSMTP(toEmail, subject, html);
-          console.log("✅ Order confirmation email sent successfully via SMTP");
-          return smtpResult;
-        } else {
-          throw new Error("Neither Resend nor SMTP is configured");
-        }
+      // Resend-only send (no SMTP fallback, per user's request)
+      if (!process.env.RESEND_API_KEY) {
+        throw new Error("RESEND_API_KEY is not configured");
       }
-
-      console.log("📧 Attempting to send via Resend...");
       const { data, error } = await this.resend.emails.send({
-        from:
-          process.env.SMTP_FROM ||
-          process.env.FROM_EMAIL ||
-          "noreply@yourdomain.com",
+        from: process.env.FROM_EMAIL || "noreply@yourdomain.com",
         to: toEmail,
         subject,
         html,
@@ -353,24 +334,11 @@ class EmailService {
           </div>
         `;
 
-      if (!this.resend) {
-        console.log(
-          "📧 Resend not available, trying SMTP for admin notification..."
-        );
-        if (this.smtpEnabled && this.transporter) {
-          const smtpResult = await this.sendViaSMTP(adminTo, subject, html);
-          console.log("✅ Admin notification email sent successfully via SMTP");
-          return smtpResult;
-        } else {
-          throw new Error("Neither Resend nor SMTP is configured");
-        }
+      if (!process.env.RESEND_API_KEY) {
+        throw new Error("RESEND_API_KEY is not configured");
       }
-
       const { data, error } = await this.resend.emails.send({
-        from:
-          process.env.SMTP_FROM ||
-          process.env.FROM_EMAIL ||
-          "noreply@yourdomain.com",
+        from: process.env.FROM_EMAIL || "noreply@yourdomain.com",
         to: adminTo,
         subject,
         html,
