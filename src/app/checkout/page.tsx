@@ -63,6 +63,16 @@ export default function CheckoutPage() {
     }
   }, [showSuccess, showError, router]);
 
+  // Debug modal state changes
+  useEffect(() => {
+    console.log(
+      "Modal state changed - showSuccess:",
+      showSuccess,
+      "showError:",
+      showError
+    );
+  }, [showSuccess, showError]);
+
   if (cartItems.length === 0) {
     return null;
   }
@@ -299,8 +309,9 @@ export default function CheckoutPage() {
       setShowSuccess(true);
       console.log("showSuccess state set to true");
 
-      // Force immediate re-render
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      // Force immediate re-render and verify state
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      console.log("showSuccess state after timeout:", showSuccess);
 
       // Set up redirect after modal is visible
       setTimeout(() => {
@@ -325,6 +336,16 @@ export default function CheckoutPage() {
       {process.env.NODE_ENV === "development" && (
         <div className="fixed top-4 left-4 z-50 p-2 text-xs text-black bg-yellow-200 rounded">
           Modal State: {showSuccess ? "SHOWING" : "HIDDEN"}
+          <button
+            onClick={() => {
+              console.log("Manual test button clicked");
+              setShowSuccess(true);
+              console.log("Manual setShowSuccess(true) called");
+            }}
+            className="ml-2 px-2 py-1 bg-green-500 text-white rounded text-xs"
+          >
+            Test Modal
+          </button>
         </div>
       )}
 
@@ -332,6 +353,18 @@ export default function CheckoutPage() {
       {showSuccess && (
         <div
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          }}
           onClick={(e) => e.stopPropagation()}
         >
           <div
