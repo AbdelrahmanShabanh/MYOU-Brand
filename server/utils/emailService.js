@@ -29,13 +29,6 @@ class EmailService {
           user: process.env.SMTP_USER,
           pass: process.env.SMTP_PASS,
         },
-        // Add connection timeout and retry settings for Railway
-        connectionTimeout: 60000, // 60 seconds
-        greetingTimeout: 30000,   // 30 seconds
-        socketTimeout: 60000,     // 60 seconds
-        pool: false,              // Disable pooling for Railway
-        maxConnections: 1,        // Single connection
-        maxMessages: 1,           // Single message per connection
       });
     }
 
@@ -57,17 +50,53 @@ class EmailService {
     if (!this.smtpEnabled || !this.transporter) {
       throw new Error("SMTP transporter is not configured");
     }
-    const fromEmail =
-      process.env.SMTP_FROM ||
-      process.env.FROM_EMAIL ||
-      "noreply@yourdomain.com";
-    const info = await this.transporter.sendMail({
-      from: fromEmail,
-      to,
-      subject,
-      html,
-    });
-    return info;
+
+    try {
+      console.log("📧 Attempting SMTP connection...");
+      console.log("SMTP Host:", process.env.SMTP_HOST);
+      console.log("SMTP Port:", process.env.SMTP_PORT);
+      console.log("SMTP User:", process.env.SMTP_USER);
+
+      const fromEmail =
+        process.env.SMTP_FROM ||
+        process.env.FROM_EMAIL ||
+        "noreply@yourdomain.com";
+
+      const info = await this.transporter.sendMail({
+        from: fromEmail,
+        to,
+        subject,
+        html,
+      });
+
+      console.log("✅ SMTP email sent successfully");
+      return info;
+    } catch (error) {
+      console.error("❌ SMTP error details:", {
+        code: error.code,
+        command: error.command,
+        response: error.response,
+        responseCode: error.responseCode,
+        message: error.message,
+      });
+
+      // Provide helpful error messages for common issues
+      if (error.code === "ETIMEDOUT") {
+        throw new Error(
+          `SMTP connection timeout. This often happens on Railway. Try using a different email service like SendGrid or Outlook.`
+        );
+      } else if (error.code === "ECONNREFUSED") {
+        throw new Error(
+          `SMTP connection refused. Check if the port and host are correct.`
+        );
+      } else if (error.code === "EAUTH") {
+        throw new Error(
+          `SMTP authentication failed. Check your username and password.`
+        );
+      } else {
+        throw new Error(`SMTP failed: ${error.message}`);
+      }
+    }
   }
 
   // إرسال تأكيد الطلب عبر البريد الإلكتروني
@@ -207,7 +236,10 @@ class EmailService {
 
       console.log("📧 Attempting to send via Resend...");
       const { data, error } = await this.resend.emails.send({
-        from: process.env.SMTP_FROM || process.env.FROM_EMAIL || "noreply@yourdomain.com",
+        from:
+          process.env.SMTP_FROM ||
+          process.env.FROM_EMAIL ||
+          "noreply@yourdomain.com",
         to: toEmail,
         subject,
         html,
@@ -322,7 +354,9 @@ class EmailService {
         `;
 
       if (!this.resend) {
-        console.log("📧 Resend not available, trying SMTP for admin notification...");
+        console.log(
+          "📧 Resend not available, trying SMTP for admin notification..."
+        );
         if (this.smtpEnabled && this.transporter) {
           const smtpResult = await this.sendViaSMTP(adminTo, subject, html);
           console.log("✅ Admin notification email sent successfully via SMTP");
@@ -333,7 +367,10 @@ class EmailService {
       }
 
       const { data, error } = await this.resend.emails.send({
-        from: process.env.SMTP_FROM || process.env.FROM_EMAIL || "noreply@yourdomain.com",
+        from:
+          process.env.SMTP_FROM ||
+          process.env.FROM_EMAIL ||
+          "noreply@yourdomain.com",
         to: adminTo,
         subject,
         html,
