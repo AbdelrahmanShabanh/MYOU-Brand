@@ -37,7 +37,6 @@ export default function CheckoutPage() {
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-
   useEffect(() => {
     setIsClient(true);
     if (cartItems.length === 0) {
@@ -63,8 +62,6 @@ export default function CheckoutPage() {
       return () => document.removeEventListener("keydown", handleEscape);
     }
   }, [showSuccess, showError, router]);
-
-
 
   if (cartItems.length === 0) {
     return null;
@@ -297,22 +294,21 @@ export default function CheckoutPage() {
       // Clear local cart state for all users
       dispatch(clearCart());
 
-      // Show success modal FIRST and force re-render
+      // Show success modal immediately
       console.log("About to set showSuccess to true");
       setShowSuccess(true);
       console.log("showSuccess state set to true");
 
-      // Log the current state after setting
-      // Add a small delay to ensure state update is processed
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      // Force immediate re-render
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
-      // Wait for modal to be visible before setting up redirect
+      // Set up redirect after modal is visible
       setTimeout(() => {
         // Redirect after 10 seconds to give users time to see the success message
         setTimeout(() => {
           router.push("/");
         }, 10000);
-      }, 500);
+      }, 1000);
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error ? err.message : "An error occurred";
@@ -325,38 +321,22 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-
+      {/* Debug Modal State */}
+      {process.env.NODE_ENV === "development" && (
+        <div className="fixed top-4 left-4 z-50 p-2 text-xs text-black bg-yellow-200 rounded">
+          Modal State: {showSuccess ? "SHOWING" : "HIDDEN"}
+        </div>
+      )}
 
       {/* Success Message */}
       {showSuccess && (
         <div
-          className="flex fixed inset-0 z-[9999] justify-center items-center bg-black bg-opacity-50"
-          style={{
-            animation: "fadeIn 0.3s ease-in-out",
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 9999,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-          }}
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50"
           onClick={(e) => e.stopPropagation()}
         >
           <div
-            className="relative p-8 mx-4 max-w-md text-center bg-white rounded-lg shadow-xl animate-scaleIn"
+            className="relative p-8 mx-4 max-w-md text-center bg-white rounded-lg shadow-xl"
             onClick={(e) => e.stopPropagation()}
-            style={{
-              position: "relative",
-              zIndex: 10000,
-              backgroundColor: "white",
-              borderRadius: "8px",
-              boxShadow:
-                "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-            }}
           >
             {/* Close button */}
             <button
