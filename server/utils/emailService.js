@@ -4,8 +4,13 @@ const nodemailer = require("nodemailer");
 // خدمة إرسال البريد الإلكتروني باستخدام Resend
 class EmailService {
   constructor() {
-    // Create Resend client
-    this.resend = new Resend(process.env.RESEND_API_KEY);
+    // Only create Resend client if API key is provided
+    if (process.env.RESEND_API_KEY) {
+      this.resend = new Resend(process.env.RESEND_API_KEY);
+    } else {
+      this.resend = null;
+      console.log("⚠️ No RESEND_API_KEY provided, Resend disabled");
+    }
 
     // Initialize SMTP transporter if SMTP env vars are present
     this.smtpEnabled =
@@ -76,15 +81,6 @@ class EmailService {
         throw new Error(
           "Invalid customer email address for confirmation email"
         );
-      }
-
-      // Check if FROM_EMAIL is the onboarding email (which has restrictions)
-      if (process.env.FROM_EMAIL === "onboarding@resend.dev") {
-        console.log(
-          "⚠️ WARNING: Using onboarding@resend.dev which has limited permissions"
-        );
-        console.log("⚠️ This email can only send to verified domains");
-        console.log("⚠️ Consider changing FROM_EMAIL to your verified domain");
       }
 
       const itemsList = order.items
@@ -190,12 +186,32 @@ class EmailService {
           </div>
         `;
 
-      // Resend-only send (no SMTP fallback, per user's request)
-      if (!process.env.RESEND_API_KEY) {
-        throw new Error("RESEND_API_KEY is not configured");
+      // Try Resend first, fallback to SMTP if available
+      if (!this.resend) {
+        console.log("📧 Resend not available, trying SMTP...");
+        if (this.smtpEnabled && this.transporter) {
+          const smtpResult = await this.sendViaSMTP(toEmail, subject, html);
+          console.log("✅ Order confirmation email sent successfully via SMTP");
+          return smtpResult;
+        } else {
+          throw new Error("Neither Resend nor SMTP is configured");
+        }
       }
+
+      if (!this.resend) {
+        console.log("📧 Resend not available, trying SMTP...");
+        if (this.smtpEnabled && this.transporter) {
+          const smtpResult = await this.sendViaSMTP(toEmail, subject, html);
+          console.log("✅ Order confirmation email sent successfully via SMTP");
+          return smtpResult;
+        } else {
+          throw new Error("Neither Resend nor SMTP is configured");
+        }
+      }
+
+      console.log("📧 Attempting to send via Resend...");
       const { data, error } = await this.resend.emails.send({
-        from: process.env.FROM_EMAIL || "noreply@yourdomain.com",
+        from: process.env.SMTP_FROM || process.env.FROM_EMAIL || "noreply@yourdomain.com",
         to: toEmail,
         subject,
         html,
@@ -309,11 +325,19 @@ class EmailService {
           </div>
         `;
 
-      if (!process.env.RESEND_API_KEY) {
-        throw new Error("RESEND_API_KEY is not configured");
+      if (!this.resend) {
+        console.log("📧 Resend not available, trying SMTP for admin notification...");
+        if (this.smtpEnabled && this.transporter) {
+          const smtpResult = await this.sendViaSMTP(adminTo, subject, html);
+          console.log("✅ Admin notification email sent successfully via SMTP");
+          return smtpResult;
+        } else {
+          throw new Error("Neither Resend nor SMTP is configured");
+        }
       }
+
       const { data, error } = await this.resend.emails.send({
-        from: process.env.FROM_EMAIL || "noreply@yourdomain.com",
+        from: process.env.SMTP_FROM || process.env.FROM_EMAIL || "noreply@yourdomain.com",
         to: adminTo,
         subject,
         html,
