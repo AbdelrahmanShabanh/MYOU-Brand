@@ -29,6 +29,13 @@ class EmailService {
           user: process.env.SMTP_USER,
           pass: process.env.SMTP_PASS,
         },
+        // Add connection timeout and retry settings for Railway
+        connectionTimeout: 60000, // 60 seconds
+        greetingTimeout: 30000,   // 30 seconds
+        socketTimeout: 60000,     // 60 seconds
+        pool: false,              // Disable pooling for Railway
+        maxConnections: 1,        // Single connection
+        maxMessages: 1,           // Single message per connection
       });
     }
 
@@ -187,17 +194,6 @@ class EmailService {
         `;
 
       // Try Resend first, fallback to SMTP if available
-      if (!this.resend) {
-        console.log("📧 Resend not available, trying SMTP...");
-        if (this.smtpEnabled && this.transporter) {
-          const smtpResult = await this.sendViaSMTP(toEmail, subject, html);
-          console.log("✅ Order confirmation email sent successfully via SMTP");
-          return smtpResult;
-        } else {
-          throw new Error("Neither Resend nor SMTP is configured");
-        }
-      }
-
       if (!this.resend) {
         console.log("📧 Resend not available, trying SMTP...");
         if (this.smtpEnabled && this.transporter) {
