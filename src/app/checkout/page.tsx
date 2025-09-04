@@ -23,7 +23,7 @@ export default function CheckoutPage() {
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [postalCode, setPostalCode] = useState("");
-  const [shippingMethod, setShippingMethod] = useState("express");
+  const [shippingMethod] = useState("express");
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [coupon, setCoupon] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState("");
@@ -36,7 +36,7 @@ export default function CheckoutPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [forceUpdate, setForceUpdate] = useState(0);
+
 
   useEffect(() => {
     setIsClient(true);
@@ -64,21 +64,7 @@ export default function CheckoutPage() {
     }
   }, [showSuccess, showError, router]);
 
-  // Debug modal state changes
-  useEffect(() => {
-    console.log(
-      "Modal state changed - showSuccess:",
-      showSuccess,
-      "showError:",
-      showError
-    );
 
-    // Additional debugging for success modal
-    if (showSuccess) {
-      console.log("🎉 SUCCESS MODAL SHOULD BE VISIBLE NOW!");
-      console.log("Modal state confirmed:", showSuccess);
-    }
-  }, [showSuccess, showError]);
 
   if (cartItems.length === 0) {
     return null;
@@ -317,22 +303,13 @@ export default function CheckoutPage() {
       console.log("showSuccess state set to true");
 
       // Log the current state after setting
-      setTimeout(() => {
-        console.log("showSuccess state after timeout:", showSuccess);
-      }, 100);
-
-      // Force a re-render by updating a dummy state
-      setForceUpdate((prev) => prev + 1);
-
       // Add a small delay to ensure state update is processed
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Wait for modal to be visible before setting up redirect
       setTimeout(() => {
-        console.log("Modal should be visible now, setting up redirect");
         // Redirect after 10 seconds to give users time to see the success message
         setTimeout(() => {
-          console.log("Redirecting to home page");
           router.push("/");
         }, 10000);
       }, 500);
@@ -348,23 +325,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Debug Info */}
-      {process.env.NODE_ENV === "development" && (
-        <div className="fixed top-4 left-4 z-50 p-2 text-xs text-black bg-yellow-200 rounded">
-          Debug: showSuccess={showSuccess.toString()}, forceUpdate={forceUpdate}
-        </div>
-      )}
 
-      {/* Always show debug info in development */}
-      <div className="fixed top-4 right-4 z-50 p-2 text-xs text-black bg-green-200 rounded">
-        Modal State: {showSuccess ? "SHOWING" : "HIDDEN"}
-        <button
-          onClick={() => setShowSuccess(true)}
-          className="ml-2 px-2 py-1 bg-blue-500 text-white rounded text-xs"
-        >
-          Test Modal
-        </button>
-      </div>
 
       {/* Success Message */}
       {showSuccess && (

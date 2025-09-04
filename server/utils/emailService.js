@@ -1,14 +1,26 @@
-const { Resend } = require("resend");
 const nodemailer = require("nodemailer");
-const sgMail = require("@sendgrid/mail");
 
-// خدمة إرسال البريد الإلكتروني باستخدام Resend
+// Initialize SendGrid
+let sgMail;
+try {
+  sgMail = require("@sendgrid/mail");
+} catch {
+  console.log("⚠️ @sendgrid/mail package not installed");
+}
+
+// خدمة إرسال البريد الإلكتروني باستخدام SendGrid
 class EmailService {
   constructor() {
-    // Create Resend client
-    this.resend = new Resend(process.env.RESEND_API_KEY);
+    // Initialize SendGrid if API key is present
+    this.sendgridEnabled = !!process.env.SENDGRID_API_KEY;
+    if (this.sendgridEnabled && sgMail) {
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+      console.log("✅ SendGrid initialized");
+    } else {
+      console.log("⚠️ SendGrid not available");
+    }
 
-    // Initialize SMTP transporter if SMTP env vars are present
+    // Initialize SMTP transporter if SMTP env vars are present (as backup)
     this.smtpEnabled =
       !!process.env.SMTP_HOST &&
       !!process.env.SMTP_PORT &&
@@ -28,20 +40,10 @@ class EmailService {
       });
     }
 
-    // Initialize SendGrid if SENDGRID_API_KEY is present
-    this.sendgridEnabled = !!process.env.SENDGRID_API_KEY;
-    if (this.sendgridEnabled) {
-      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-    }
-
-    console.log("=== RESEND EMAIL SERVICE INITIALIZED ===");
-    console.log(
-      "Resend API Key:",
-      process.env.RESEND_API_KEY ? "SET" : "NOT SET"
-    );
+    console.log("=== EMAIL SERVICE INITIALIZED ===");
     console.log(
       "From Email:",
-      process.env.FROM_EMAIL || "noreply@yourdomain.com"
+      process.env.SENDGRID_FROM_EMAIL || process.env.SMTP_FROM || "noreply@yourdomain.com"
     );
     console.log("Admin Email:", process.env.ADMIN_EMAIL);
     console.log("SMTP Enabled:", this.smtpEnabled ? "YES" : "NO");
@@ -55,7 +57,7 @@ class EmailService {
     }
     const fromEmail =
       process.env.SMTP_FROM ||
-      process.env.FROM_EMAIL ||
+      process.env.SENDGRID_FROM_EMAIL ||
       "noreply@yourdomain.com";
     const info = await this.transporter.sendMail({
       from: fromEmail,
@@ -64,32 +66,6 @@ class EmailService {
       html,
     });
     return info;
-  }
-
-  // Send email via SendGrid
-  async sendViaSendGrid(to, subject, html) {
-    if (!this.sendgridEnabled || !sgMail) {
-      throw new Error("SendGrid is not configured");
-    }
-
-    try {
-      const msg = {
-        to: to,
-        from: process.env.SENDGRID_FROM_EMAIL || "noreply@sendgrid.net",
-        subject: subject,
-        html: html,
-      };
-
-      const result = await sgMail.send(msg);
-      console.log("✅ SendGrid email sent successfully");
-      return result;
-    } catch (error) {
-      console.error("❌ SendGrid error:", error);
-      if (error.response) {
-        console.error("SendGrid response body:", error.response.body);
-      }
-      throw new Error(`SendGrid failed: ${error.message}`);
-    }
   }
 
   // إرسال تأكيد الطلب عبر البريد الإلكتروني
@@ -215,24 +191,28 @@ class EmailService {
           </div>
         `;
 
-      // Resend-only send (no SMTP fallback, per user's request)
-      if (!process.env.RESEND_API_KEY) {
-        throw new Error("RESEND_API_KEY is not configured");
+      // Send via SendGrid
+      if (this.sendgridEnabled && sgMail) {
+        try {
+          const msg = {
+            to: toEmail,
+            from: process.env.SENDGRID_FROM_EMAIL || process.env.SMTP_FROM || "noreply@yourdomain.com",
+            subject,
+            html,
+          };
+          const response = await sgMail.send(msg);
+          console.log("✅ Order confirmation email sent successfully via SendGrid");
+          console.log("Email ID:", response[0].id);
+          console.log("Email sent to:", toEmail);
+          return response;
+        } catch (error) {
+          console.error("❌ SendGrid email error:", error);
+          throw new Error(`SendGrid email failed: ${error.message}`);
+        }
+      } else {
+        // Fallback to SMTP if SendGrid is not available
+        return await this.sendViaSMTP(toEmail, subject, html);
       }
-      const { data, error } = await this.resend.emails.send({
-        from: process.env.FROM_EMAIL || "noreply@yourdomain.com",
-        to: toEmail,
-        subject,
-        html,
-      });
-      if (error) {
-        console.error("❌ Resend email error:", error);
-        throw new Error(`Resend email failed: ${error.message}`);
-      }
-      console.log("✅ Order confirmation email sent successfully via Resend");
-      console.log("Email ID:", data?.id);
-      console.log("Email sent to:", toEmail);
-      return data;
     } catch (error) {
       console.error(
         "❌ ERROR sending order confirmation email:",
@@ -334,23 +314,28 @@ class EmailService {
           </div>
         `;
 
-      if (!process.env.RESEND_API_KEY) {
-        throw new Error("RESEND_API_KEY is not configured");
+      // Send via SendGrid
+      if (this.sendgridEnabled && sgMail) {
+        try {
+          const msg = {
+            to: adminTo,
+            from: process.env.SENDGRID_FROM_EMAIL || process.env.SMTP_FROM || "noreply@yourdomain.com",
+            subject,
+            html,
+          };
+          const response = await sgMail.send(msg);
+          console.log("✅ Admin notification email sent successfully via SendGrid");
+          console.log("Email ID:", response[0].id);
+          console.log("Admin email sent to:", adminTo);
+          return response;
+        } catch (error) {
+          console.error("❌ SendGrid admin notification error:", error);
+          throw new Error(`SendGrid admin notification failed: ${error.message}`);
+        }
+      } else {
+        // Fallback to SMTP if SendGrid is not available
+        return await this.sendViaSMTP(adminTo, subject, html);
       }
-      const { data, error } = await this.resend.emails.send({
-        from: process.env.FROM_EMAIL || "noreply@yourdomain.com",
-        to: adminTo,
-        subject,
-        html,
-      });
-      if (error) {
-        console.error("❌ Resend admin notification error:", error);
-        throw new Error(`Resend admin notification failed: ${error.message}`);
-      }
-      console.log("✅ Admin notification email sent successfully via Resend");
-      console.log("Email ID:", data?.id);
-      console.log("Admin email sent to:", adminTo);
-      return data;
     } catch (error) {
       console.error(
         "❌ ERROR sending admin notification email:",
