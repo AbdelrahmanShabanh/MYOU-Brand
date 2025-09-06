@@ -24,7 +24,6 @@ function FeaturedProducts() {
         if (!res.ok) throw new Error("Failed to fetch featured products");
         setProducts(await res.json());
       } catch (err) {
-        console.error("Fetch error:", err);
         setError((err as Error).message);
       } finally {
         setLoading(false);
@@ -41,7 +40,7 @@ function FeaturedProducts() {
 
   return (
     <section className="px-4 py-16 mx-auto max-w-7xl sm:px-6 lg:px-8">
-      <h2 className="mb-12 text-3xl font-bold text-center text-gray-900">
+      <h2 className="mb-12 text-3xl font-bold text-center text-gray-900 dark:text-white">
         Featured Products
       </h2>
       <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -63,7 +62,7 @@ function FeaturedProducts() {
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white dark:bg-gray-900">
       <Hero />
       <FeaturedProducts />
       <CollectionGrid />

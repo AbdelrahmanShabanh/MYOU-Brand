@@ -304,22 +304,21 @@ export default function CheckoutPage() {
       // Clear local cart state for all users
       dispatch(clearCart());
 
-      // Show success modal immediately
-      console.log("About to set showSuccess to true");
-      setShowSuccess(true);
-      console.log("showSuccess state set to true");
+      // Show success modal after 4 seconds
+      console.log("Order successful! Will show success modal in 4 seconds");
+      setTimeout(() => {
+        console.log("About to set showSuccess to true");
+        setShowSuccess(true);
+        console.log("showSuccess state set to true");
+      }, 4000);
 
-      // Force immediate re-render and verify state
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      console.log("showSuccess state after timeout:", showSuccess);
-
-      // Set up redirect after modal is visible
+      // Set up redirect after modal is visible (10 seconds after modal shows)
       setTimeout(() => {
         // Redirect after 10 seconds to give users time to see the success message
         setTimeout(() => {
           router.push("/");
         }, 10000);
-      }, 1000);
+      }, 14000); // 4 seconds for modal + 10 seconds for display
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error ? err.message : "An error occurred";
