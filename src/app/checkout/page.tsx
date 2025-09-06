@@ -36,14 +36,22 @@ export default function CheckoutPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [shouldShowSuccess, setShouldShowSuccess] = useState(false);
+  const [orderPlaced, setOrderPlaced] = useState(false);
   const successTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setIsClient(true);
-    if (cartItems.length === 0) {
+    // Only redirect if cart is empty AND we haven't just completed an order AND we're not in the middle of processing
+    if (
+      cartItems.length === 0 &&
+      !showSuccess &&
+      !shouldShowSuccess &&
+      !isSubmitting
+    ) {
       router.push("/");
     }
-  }, [cartItems, router]);
+  }, [cartItems, router, showSuccess, shouldShowSuccess, isSubmitting]);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -59,12 +67,43 @@ export default function CheckoutPage() {
     console.log("showSuccess state changed to:", showSuccess);
   }, [showSuccess]);
 
+  // Handle delayed success modal
+  useEffect(() => {
+    if (shouldShowSuccess) {
+      console.log("shouldShowSuccess is true, setting up 1 second delay");
+      const timer = setTimeout(() => {
+        console.log("1 second passed, setting showSuccess to true");
+        setShowSuccess(true);
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [shouldShowSuccess]);
+
+  // Debug effect to monitor shouldShowSuccess state
+  useEffect(() => {
+    console.log("shouldShowSuccess state changed to:", shouldShowSuccess);
+  }, [shouldShowSuccess]);
+
+  // Handle automatic redirect after modal appears
+  useEffect(() => {
+    if (showSuccess) {
+      console.log("Success modal appeared, setting up 10 second redirect");
+      const redirectTimer = setTimeout(() => {
+        console.log("10 seconds passed, redirecting to home page");
+        router.push("/");
+      }, 10000);
+
+      return () => clearTimeout(redirectTimer);
+    }
+  }, [showSuccess, router]);
+
   // Handle escape key to close modals
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         if (showSuccess) {
-          router.push("/");
+          setShowSuccess(false);
         }
         if (showError) {
           setShowError(false);
@@ -88,7 +127,8 @@ export default function CheckoutPage() {
     );
   }, [showSuccess, showError]);
 
-  if (cartItems.length === 0) {
+  // Don't hide the page if we're showing success modal or in the process of showing it
+  if (cartItems.length === 0 && !showSuccess && !shouldShowSuccess) {
     return null;
   }
 
@@ -209,6 +249,12 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Check if order has already been placed
+    if (orderPlaced) {
+      alert("You already made your order! Please wait for the confirmation.");
+      return;
+    }
+
     if (!validateForm()) {
       return;
     }
@@ -310,6 +356,15 @@ export default function CheckoutPage() {
 
       console.log("Order successful! Setting showSuccess to true");
 
+      // Mark order as placed to prevent duplicates
+      setOrderPlaced(true);
+
+      // Trigger success modal after 1 second FIRST (same as simulate payment)
+      console.log("Order successful! Will show success modal in 1 second");
+      console.log("About to call setShouldShowSuccess(true) from Pay Now");
+      setShouldShowSuccess(true);
+      console.log("setShouldShowSuccess(true) called from Pay Now");
+
       // Clear cart after successful order (for both guest and authenticated users)
       if (user && user.id) {
         // Clear backend cart for authenticated users
@@ -319,34 +374,7 @@ export default function CheckoutPage() {
       // Clear local cart state for all users
       dispatch(clearCart());
 
-      // Show success modal after 4 seconds
-      console.log("Order successful! Will show success modal in 4 seconds");
-
-      // Use a more direct approach
-      const showModal = () => {
-        console.log("About to set showSuccess to true");
-        setShowSuccess(true);
-        console.log("showSuccess state set to true");
-
-        // Double check after a brief delay
-        setTimeout(() => {
-          console.log("Double checking showSuccess state:", showSuccess);
-          if (!showSuccess) {
-            console.log("Force setting showSuccess to true");
-            setShowSuccess(true);
-          }
-        }, 100);
-      };
-
-      successTimeoutRef.current = setTimeout(showModal, 4000);
-
-      // Set up redirect after modal is visible (10 seconds after modal shows)
-      setTimeout(() => {
-        // Redirect after 10 seconds to give users time to see the success message
-        setTimeout(() => {
-          router.push("/");
-        }, 10000);
-      }, 14000); // 4 seconds for modal + 10 seconds for display
+      // No automatic redirect - user can manually navigate when ready
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error ? err.message : "An error occurred";
@@ -384,6 +412,30 @@ export default function CheckoutPage() {
             className="px-2 py-1 ml-2 text-xs text-white bg-red-500 rounded"
           >
             Force Show
+          </button>
+          <button
+            onClick={() => {
+              console.log("Test delayed modal clicked");
+              setShouldShowSuccess(true);
+            }}
+            className="px-2 py-1 ml-2 text-xs text-white bg-blue-500 rounded"
+          >
+            Test Delayed
+          </button>
+          <button
+            onClick={() => {
+              console.log("Simulate payment success clicked");
+              console.log(
+                "About to call setShouldShowSuccess(true) from Simulate"
+              );
+              setShouldShowSuccess(true);
+              console.log("setShouldShowSuccess(true) called from Simulate");
+              // Simulate cart clearing
+              dispatch(clearCart());
+            }}
+            className="px-2 py-1 ml-2 text-xs text-white bg-purple-500 rounded"
+          >
+            Simulate Payment
           </button>
         </div>
       )}
@@ -436,7 +488,7 @@ export default function CheckoutPage() {
           >
             {/* Close button */}
             <button
-              onClick={() => router.push("/")}
+              onClick={() => setShowSuccess(false)}
               className="absolute top-4 right-4 text-gray-400 transition-colors hover:text-gray-600"
             >
               <svg
