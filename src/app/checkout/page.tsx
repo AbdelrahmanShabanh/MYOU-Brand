@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { clearCartBackend, clearCart } from "@/store/slices/cartSlice";
@@ -36,6 +36,7 @@ export default function CheckoutPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const successTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setIsClient(true);
@@ -43,6 +44,20 @@ export default function CheckoutPage() {
       router.push("/");
     }
   }, [cartItems, router]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (successTimeoutRef.current) {
+        clearTimeout(successTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Debug effect to monitor showSuccess state
+  useEffect(() => {
+    console.log("showSuccess state changed to:", showSuccess);
+  }, [showSuccess]);
 
   // Handle escape key to close modals
   useEffect(() => {
@@ -306,7 +321,7 @@ export default function CheckoutPage() {
 
       // Show success modal after 4 seconds
       console.log("Order successful! Will show success modal in 4 seconds");
-      setTimeout(() => {
+      successTimeoutRef.current = setTimeout(() => {
         console.log("About to set showSuccess to true");
         setShowSuccess(true);
         console.log("showSuccess state set to true");
@@ -341,7 +356,7 @@ export default function CheckoutPage() {
               setShowSuccess(true);
               console.log("Manual setShowSuccess(true) called");
             }}
-            className="ml-2 px-2 py-1 bg-green-500 text-white rounded text-xs"
+            className="px-2 py-1 ml-2 text-xs text-white bg-green-500 rounded"
           >
             Test Modal
           </button>
@@ -366,6 +381,10 @@ export default function CheckoutPage() {
           }}
           onClick={(e) => e.stopPropagation()}
         >
+          {/* Debug indicator */}
+          <div className="fixed top-4 left-4 z-[10000] p-2 bg-red-500 text-white text-xs rounded">
+            MODAL IS RENDERING - showSuccess: {showSuccess.toString()}
+          </div>
           <div
             className="relative p-8 mx-4 max-w-md text-center bg-white rounded-lg shadow-xl"
             onClick={(e) => e.stopPropagation()}
@@ -435,7 +454,7 @@ export default function CheckoutPage() {
             <div className="flex flex-col space-y-3">
               <button
                 onClick={() => setShowSuccess(false)}
-                className="w-full px-4 py-2 text-white bg-pink-600 rounded-md transition-colors hover:bg-pink-700 font-medium"
+                className="px-4 py-2 w-full font-medium text-white bg-pink-600 rounded-md transition-colors hover:bg-pink-700"
               >
                 OK
               </button>
