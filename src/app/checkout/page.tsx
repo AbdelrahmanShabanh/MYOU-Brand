@@ -321,11 +321,24 @@ export default function CheckoutPage() {
 
       // Show success modal after 4 seconds
       console.log("Order successful! Will show success modal in 4 seconds");
-      successTimeoutRef.current = setTimeout(() => {
+
+      // Use a more direct approach
+      const showModal = () => {
         console.log("About to set showSuccess to true");
         setShowSuccess(true);
         console.log("showSuccess state set to true");
-      }, 4000);
+
+        // Double check after a brief delay
+        setTimeout(() => {
+          console.log("Double checking showSuccess state:", showSuccess);
+          if (!showSuccess) {
+            console.log("Force setting showSuccess to true");
+            setShowSuccess(true);
+          }
+        }, 100);
+      };
+
+      successTimeoutRef.current = setTimeout(showModal, 4000);
 
       // Set up redirect after modal is visible (10 seconds after modal shows)
       setTimeout(() => {
@@ -360,33 +373,65 @@ export default function CheckoutPage() {
           >
             Test Modal
           </button>
+          <button
+            onClick={() => {
+              console.log("Force show modal clicked");
+              setShowSuccess(true);
+              // Force multiple state updates
+              setTimeout(() => setShowSuccess(true), 10);
+              setTimeout(() => setShowSuccess(true), 50);
+            }}
+            className="px-2 py-1 ml-2 text-xs text-white bg-red-500 rounded"
+          >
+            Force Show
+          </button>
         </div>
       )}
 
       {/* Success Message */}
       {showSuccess && (
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50"
           style={{
             position: "fixed",
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            zIndex: 9999,
+            zIndex: 99999,
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
           }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Debug indicator */}
-          <div className="fixed top-4 left-4 z-[10000] p-2 bg-red-500 text-white text-xs rounded">
+          <div
+            style={{
+              position: "fixed",
+              top: "20px",
+              left: "20px",
+              zIndex: 100000,
+              padding: "10px",
+              backgroundColor: "red",
+              color: "white",
+              fontSize: "12px",
+              borderRadius: "4px",
+            }}
+          >
             MODAL IS RENDERING - showSuccess: {showSuccess.toString()}
           </div>
           <div
-            className="relative p-8 mx-4 max-w-md text-center bg-white rounded-lg shadow-xl"
+            style={{
+              position: "relative",
+              padding: "32px",
+              margin: "16px",
+              maxWidth: "400px",
+              textAlign: "center",
+              backgroundColor: "white",
+              borderRadius: "8px",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+            }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
