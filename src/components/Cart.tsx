@@ -9,7 +9,7 @@ import {
   updateCartItemSize,
 } from "@/store/slices/cartSlice";
 import Image from "next/image";
-import { FiX, FiPlus, FiMinus, FiTrash2, FiShoppingBag } from 'react-icons/fi';
+import { FiX, FiPlus, FiMinus, FiTrash2, FiShoppingBag } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { CartItemSkeleton } from "./LoadingSkeleton";
 import { useRouter } from "next/navigation";
@@ -22,7 +22,7 @@ const Cart = () => {
   const cartRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [editingSizes, setEditingSizes] = useState<{ [key: string]: boolean }>(
-    {}
+    {},
   );
   const [productDetails, setProductDetails] = useState<{
     [key: string]: Product;
@@ -32,16 +32,16 @@ const Cart = () => {
   // Calculate total price
   const total = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
-    0
+    0,
   );
   const totalShipping = cartItems.reduce(
     (sum, item) => sum + (item.shippingCost || 0) * item.quantity,
-    0
+    0,
   );
 
   // Check if all items have sizes
   const allItemsHaveSizes = cartItems.every(
-    (item) => item.size && item.size.trim() !== ""
+    (item) => item.size && item.size.trim() !== "",
   );
 
   useEffect(() => {
@@ -108,7 +108,7 @@ const Cart = () => {
       const response = await fetch(
         `${
           process.env.NEXT_PUBLIC_API_URL || "/api"
-        }/api/products/${productId}`
+        }/api/products/${productId}`,
       );
       if (response.ok) {
         const product = await response.json();
@@ -239,7 +239,7 @@ const Cart = () => {
                                       >
                                         {size}
                                       </button>
-                                    )
+                                    ),
                                   )}
                                 </div>
                                 <button
@@ -255,7 +255,8 @@ const Cart = () => {
                                   Size: {item.size || "Not selected"}
                                 </p>
                                 {productDetails[item.id]?.sizes &&
-                                  (productDetails[item.id]?.sizes?.length ?? 0) > 0 && (
+                                  (productDetails[item.id]?.sizes?.length ??
+                                    0) > 0 && (
                                     <button
                                       onClick={() => toggleSizeEditing(item.id)}
                                       className="text-xs text-pink-600 hover:text-pink-600 underline"
@@ -272,7 +273,7 @@ const Cart = () => {
                                 onClick={() =>
                                   handleQuantityChange(
                                     item.id,
-                                    item.quantity - 1
+                                    item.quantity - 1,
                                   )
                                 }
                                 className="p-1.5 text-gray-600 hover:text-pink-600 transition-colors"
@@ -286,7 +287,7 @@ const Cart = () => {
                                 onClick={() =>
                                   handleQuantityChange(
                                     item.id,
-                                    item.quantity + 1
+                                    item.quantity + 1,
                                   )
                                 }
                                 className="p-1.5 text-gray-600 hover:text-pink-600 transition-colors"
